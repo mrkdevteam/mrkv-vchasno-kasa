@@ -47,6 +47,9 @@ if (!class_exists('MRKV_SETUP')){
 			# Add function in cron hook 	
 			add_action('clear_all_log_plugin_event_hook', array($this,'clear_all_log'));
 
+			# Add function autocreate order receipt
+			add_action('woocommerce_order_status_changed', array($this,'mrkv_vchasno_kasa_auto_create_receipt'), 99, 3);
+
 			# Cron for clean log every month
 			if( ! wp_next_scheduled( 'clear_all_log_plugin_event_hook' ) ) {
 				# Add event
@@ -219,6 +222,27 @@ if (!class_exists('MRKV_SETUP')){
 
 			# Return array with monthly schedules
 			return $schedules;
+	    }
+
+	    /**
+	     * Automatic receipt creation
+	     *
+	     * @param string $order_id Order ID
+	     * @param string $old_status old order status
+	     * @param string $new_status new order status
+	     */
+	    public function mrkv_vchasno_kasa_auto_create_receipt($order_id, $old_status, $new_status){
+	    	# Include Create receipt class
+			include plugin_dir_path($this->file_path) . "classes/mrkv-vchasno-kasa-receipt.php";
+
+			# Get order data
+			$order = wc_get_order( $order_id );
+
+			# Creator recaipt
+			$creator = new MRKV_VCHASNO_KASA_RECEIPT($order);
+
+			# Create Receipt
+			$creator->create_receipt();
 	    }
 	}
 }

@@ -141,17 +141,23 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 
 			# Check shift status
 			if(!$this->check_shift_status()){
-				# Show Error
-				$log->save_log(__('Помилка при створені чека: Зміна закрита', 'mrkv-vchasno-kasa'));
+				# Get current Shift data
+				$shift = new MRKV_SHIFT();
 
-				# Stop create
-				return;
+				# Open shift
+				$shift->open_shift();
+
+				# Update status shift
+				$shift->update_shift_status();
 			}
 
 			# Check token exist
 			if(!$this->check_token_exist()){
 				# Show Error
 				$log->save_log(__('Помилка при створені чека: Порожній токен', 'mrkv-vchasno-kasa'));
+
+				# Show error in order
+				$this->order->add_order_note(__('Помилка при створені чека: Порожній токен', 'mrkv-vchasno-kasa'), $is_customer_note = 0, $added_by_user = false);
 
 				# Stop create
 				return;
@@ -162,6 +168,9 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 				# Show Error
 				$log->save_log(__('Помилка при створені чека: Чек вже було створено для данного замовлення', 'mrkv-vchasno-kasa'));
 
+				# Show error in order
+				$this->order->add_order_note(__('Помилка при створені чека: Чек вже було створено для данного замовлення', 'mrkv-vchasno-kasa'), $is_customer_note = 0, $added_by_user = false);
+
 				# Stop create
 				return;
 			}
@@ -170,6 +179,9 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 			if($this->check_payment_types()){
 				# Show Error
 				$log->save_log(__('Помилка при створені чека: Чек не пройшов пройшов по правилам формування чеків', 'mrkv-vchasno-kasa'));
+
+				# Show error in order
+				$this->order->add_order_note(__('Помилка при створені чека: Чек не пройшов пройшов по правилам формування чеків', 'mrkv-vchasno-kasa'), $is_customer_note = 0, $added_by_user = false);
 
 				# Stop create
 				return;
