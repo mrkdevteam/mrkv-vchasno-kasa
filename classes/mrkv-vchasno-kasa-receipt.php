@@ -32,6 +32,11 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 		private $order;
 
 		/**
+		 * @param string Type creation
+		 * */
+		private $type_creation;
+
+		/**
 		 * @var string Url action
 		 * */
 		const ACTION_TYPE = 'fiscal/execute';
@@ -40,7 +45,7 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 		 * Constructor for creator receipt
 		 * @param Order data
 		 * */
-		function __construct($order){
+		function __construct($order, $type_creation){
 			# Get current Shift data
 			$shift = new MRKV_SHIFT();
 			# Update status shift
@@ -55,6 +60,9 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 
 			# Save order data
 			$this->order = $order;
+
+			# Save type creation
+			$this->type_creation = $type_creation;
 
 			# Save data
 			$this->api_vchasno_kasa = new MRKV_VCHASNO_KASA_API($connected->get_connect_data());
@@ -139,6 +147,21 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 			# Create log data object
 			$log = new MRKV_LOGGER_KASA();
 
+			# Check type creation
+			if($this->type_creation != 'handle'){
+				# Check order by rules
+				if($this->check_payment_types()){
+					# Show Error
+					$log->save_log(__('Помилка при створені чека: Чек не пройшов по правилам формування чеків', 'mrkv-vchasno-kasa'));
+
+					# Show error in order
+					$this->order->add_order_note(__('Помилка при створені чека: Чек не пройшов по правилам формування чеків', 'mrkv-vchasno-kasa'), $is_customer_note = 0, $added_by_user = false);
+
+					# Stop create
+					return;
+				}
+			}
+
 			# Check shift status
 			if(!$this->check_shift_status()){
 				# Get current Shift data
@@ -170,18 +193,6 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 
 				# Show error in order
 				$this->order->add_order_note(__('Помилка при створені чека: Чек вже було створено для данного замовлення', 'mrkv-vchasno-kasa'), $is_customer_note = 0, $added_by_user = false);
-
-				# Stop create
-				return;
-			}
-
-			# Check order by rules
-			if($this->check_payment_types()){
-				# Show Error
-				$log->save_log(__('Помилка при створені чека: Чек не пройшов пройшов по правилам формування чеків', 'mrkv-vchasno-kasa'));
-
-				# Show error in order
-				$this->order->add_order_note(__('Помилка при створені чека: Чек не пройшов пройшов по правилам формування чеків', 'mrkv-vchasno-kasa'), $is_customer_note = 0, $added_by_user = false);
 
 				# Stop create
 				return;

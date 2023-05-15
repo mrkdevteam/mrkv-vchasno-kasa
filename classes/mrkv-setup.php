@@ -131,8 +131,11 @@ if (!class_exists('MRKV_SETUP')){
 			# Include Create receipt class
 			include plugin_dir_path($this->file_path) . "classes/mrkv-vchasno-kasa-receipt.php";
 
+			# Set type creation
+			$type_creation = 'handle';
+
 			# Creator recaipt
-			$creator = new MRKV_VCHASNO_KASA_RECEIPT($order);
+			$creator = new MRKV_VCHASNO_KASA_RECEIPT($order, $type_creation);
 
 			# Create Receipt
 			$creator->create_receipt();
@@ -238,8 +241,11 @@ if (!class_exists('MRKV_SETUP')){
 			# Get order data
 			$order = wc_get_order( $order_id );
 
+			# Set type creation
+			$type_creation = 'auto';
+
 			# Creator recaipt
-			$creator = new MRKV_VCHASNO_KASA_RECEIPT($order);
+			$creator = new MRKV_VCHASNO_KASA_RECEIPT($order, $type_creation);
 
 			# Create Receipt
 			$creator->create_receipt();
