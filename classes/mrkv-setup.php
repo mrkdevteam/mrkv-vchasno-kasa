@@ -50,6 +50,12 @@ if (!class_exists('MRKV_SETUP')){
 			# Add function autocreate order receipt
 			add_action('woocommerce_order_status_changed', array($this,'mrkv_vchasno_kasa_auto_create_receipt'), 99, 3);
 
+			# Add metabox to order edit
+			add_action( 'add_meta_boxes', array($this, 'mrkv_vchasno_kasa_wc_add_metabox'));
+
+			# Add save metabox to order edit
+			add_action( 'save_post', array($this, 'mrkv_vchasno_kasa_wc_do_metabox_action'));
+
 			# Cron for clean log every month
 			if( ! wp_next_scheduled( 'clear_all_log_plugin_event_hook' ) ) {
 				# Add event
@@ -249,6 +255,88 @@ if (!class_exists('MRKV_SETUP')){
 
 			# Create Receipt
 			$creator->create_receipt();
+	    }
+
+	    /**
+	     * Add metabox
+	     * 
+	     * */
+	    public function mrkv_vchasno_kasa_wc_add_metabox()
+	    {
+	    	# Add metabox to admin page
+	        add_meta_box( 'morkva_vchasno_kasa_metabox', __('Вчасно Каса','woocommerce'), array($this, 'mrkv_vchasno_kasa_wc_add_metabox_content'), 'shop_order', 'side', 'core' );
+	    }
+
+	    /**
+	     * Add content to metabox
+	     * 
+	     * */
+	    public function mrkv_vchasno_kasa_wc_add_metabox_content()
+	    {
+	    	# Get order data
+	        global $post;
+
+	        # Get receipt url
+	        $receipt_url = get_post_meta($post->ID, 'vchasno_kasa_receipt_url', true);
+	        # Get receipt id
+            $receipt_id = get_post_meta($post->ID, 'vchasno_kasa_receipt_id', true);
+
+            # Check receipt id
+            if($receipt_id)
+            {
+            	# Show receipt link
+            	printf('Чек: ' . '<a href="%s" target="_blank">%s</a>', $receipt_url, $receipt_id);
+            }
+            else
+            {
+        	    $button_text = __( 'Створити чек', 'woocommerce' );
+
+            	echo '<form method="post" action="">
+			        <input type="submit" name="submit_morkva_vchasno_kasa_action" class="button button-primary" value="' . $button_text . '"/>
+			        <input type="hidden" name="morkva_vchasno_kasa_action_nonce" value="' . wp_create_nonce() . '">
+			    </form>';
+            }
+	    }
+
+	    /**
+	     * Create receipt by button vchasno kasa
+	     * 
+	     * @var Order ID
+	     * */
+	    public function mrkv_vchasno_kasa_wc_do_metabox_action($post_id)
+	    {
+	    	// Check type
+	    	if(isset($_POST[ 'post_type' ])){
+	    		// Only for shop order
+			    if ( 'shop_order' != $_POST[ 'post_type' ] )
+			        return $post_id;
+
+			    // Check if our nonce is set (and our cutom field)
+			    if ( ! isset( $_POST[ 'morkva_vchasno_kasa_action_nonce' ] ) && isset( $_POST['submit_morkva_vchasno_kasa_action'] ) )
+			        return $post_id;
+
+			    $nonce = $_POST[ 'morkva_vchasno_kasa_action_nonce' ];
+
+			    // Verify that the nonce is valid.
+			    if ( ! wp_verify_nonce( $nonce ) )
+			        return $post_id;
+
+			    // Checking that is not an autosave
+			    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+			        return $post_id;
+
+			    // Check the user’s permissions (for 'shop_manager' and 'administrator' user roles)
+			    if ( ! current_user_can( 'edit_shop_order', $post_id ) && ! current_user_can( 'edit_shop_orders', $post_id ) )
+			        return $post_id;
+
+			    // Action to make or (saving data)
+			    if( isset( $_POST['submit_morkva_vchasno_kasa_action'] ) ) 
+			    {
+			    	$order = wc_get_order( $post_id );
+			        $this->mrkv_vchasno_kasa_wc_process_order_meta_box_action($order);
+			    }
+	    	}
+	    	
 	    }
 	}
 }
