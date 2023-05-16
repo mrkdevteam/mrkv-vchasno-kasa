@@ -84,9 +84,9 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 							
 						</select>
 					</div>
-					<h2 class="mt-40"><?php echo __('Правила формування чеків', 'mrkv-vchasno-kasa'); ?></h2>
+					<h2 class="mt-40"><?php echo __('Правила автоматичного формування чеків', 'mrkv-vchasno-kasa'); ?></h2>
 					<hr>
-					<p><?php echo __('Налаштуйте для яких саме способів оплати створювати чеки', 'mrkv-vchasno-kasa'); ?></p>
+					<p><?php echo __('Налаштуйте для яких саме способів оплати створювати чеки автоматично. Ви завжди зможете створити чек вручну зі сторінки замовлення.', 'mrkv-vchasno-kasa'); ?></p>
 					<div class="mrkv_table-payment">
 						<div class="mrkv_table-payment__header">
 							<p><?php echo __('Спосіб оплати', 'mrkv-vchasno-kasa'); ?></p>
