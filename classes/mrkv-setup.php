@@ -77,7 +77,8 @@ if (!class_exists('MRKV_SETUP')){
 				'mrkv_kasa_shift_status',
 				'mrkv_kasa_cashier',
 				'mrkv_kasa_receipt_creation',
-				'mrkv_kasa_payment_order_statuses'
+				'mrkv_kasa_payment_order_statuses',
+				'mrkv_kasa_phone'
 	        );
 
 	        # Register all options

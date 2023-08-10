@@ -212,11 +212,20 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 			# Get order phone
 			$phone = isset($order_data['billing']['phone']) ? $order_data['billing']['phone'] : '';
 
-			# Set user info in params
-			$params['userinfo'] = array(
-				'email' => $email,
-				'phone' => $phone
-			);
+			# Check if phone enabled
+			if(get_option('mrkv_kasa_phone')){
+				# Set user info in params
+				$params['userinfo'] = array(
+					'email' => $email,
+					'phone' => $phone
+				);
+			}
+			else{
+				# Set user info in params
+				$params['userinfo'] = array(
+					'email' => $email
+				);
+			}
 
 			# Array of all products
 			$goods = array();

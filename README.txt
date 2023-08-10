@@ -2,9 +2,9 @@
 Contributors: bandido, morkva, dpmine
 Tags: WooCommerce, Vchasno Kasa, пРРО, Вчасно, Каса
 Requires at least: 5.2
-Tested up to: 6.1
+Tested up to: 6.3
 Requires PHP: 7.1
-Stable tag: 0.4.0
+Stable tag: 0.5.0
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 WooCommerce tested up to: 7.1.0
@@ -61,6 +61,10 @@ WooCommerce tested up to: 7.1.0
 7. Так виглядає створений чек
 
 == Що нового? ==
+
+= 0.4.0 =
+* [new] додали налаштування відправки SMS
+* [new] протестили плагін на Wordpress 6.3
 
 = 0.4.0 =
 * [new] додали окрему кнопку створення чеків вручну

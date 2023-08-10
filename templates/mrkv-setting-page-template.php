@@ -37,6 +37,9 @@ $current_tax_group = get_option('mrkv_kasa_tax_group', '1');
 # Test enabled
 $test_is_active = (get_option('mrkv_kasa_test_enabled') == '') ? false : get_option('mrkv_kasa_test_enabled');
 
+# Phone enabled
+$mrkv_kasa_phone = (get_option('mrkv_kasa_phone') == '') ? false : get_option('mrkv_kasa_phone');
+
 # Log file open
 $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 ?>
@@ -159,6 +162,12 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 								}
 							?>
 						</div>
+					</div>
+					<h2 class="mt-40"><?php echo __('Додаткові налаштування', 'mrkv-vchasno-kasa'); ?></h2>
+					<hr>
+					<div class="line-form">
+						<p class="line-form__title"><?php esc_html_e('Надсилати чеки по SMS (платна опція у Вчасно)', 'mrkv-vchasno-kasa'); ?></p>
+						<input class="table_input" type="checkbox" name="mrkv_kasa_phone" <?php echo ($mrkv_kasa_phone) ? esc_html('checked') : ''; ?> />
 					</div>
 					<?php echo submit_button(__('Зберегти', 'mrkv-vchasno-kasa')); ?>
 				</div>
