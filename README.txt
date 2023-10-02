@@ -4,7 +4,7 @@ Tags: WooCommerce, Vchasno Kasa, пРРО, Вчасно, Каса
 Requires at least: 5.2
 Tested up to: 6.3
 Requires PHP: 7.1
-Stable tag: 0.5.0
+Stable tag: 0.6.0
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 WooCommerce tested up to: 7.1.0
@@ -62,7 +62,12 @@ WooCommerce tested up to: 7.1.0
 
 == Що нового? ==
 
-= 0.4.0 =
+= 0.6.0 =
+* [new] додали усі типи оплати
+* [new] додали налаштування "Пропускати товари з нульовою ціною"
+* [new] додали налаштування "Включати вартість доставки у чеку"
+
+= 0.5.0 =
 * [new] додали налаштування відправки SMS
 * [new] протестили плагін на Wordpress 6.3
 

@@ -235,7 +235,11 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
         	# Loop all order items
         	foreach ($goods_items as $item) {
         		# Get product price
-        		$price = ($item->get_subtotal() / $item->get_quantity());
+        		$price = ($item->get_total() / $item->get_quantity());
+
+        		if(($price == 0) && get_option('mrkv_kasa_skip_zero_product', 1)){
+        			continue;
+        		}
 
         		# Save item
         		$goods[] = array(
@@ -243,6 +247,19 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
         			'name' => $item->get_name(),
         			'cnt' => $item->get_quantity(),
         			'price' => 'bbb' . number_format($price, 2, '.', '') . 'bbb',
+        			'disc' => 'bbb' . number_format(0.00, 2, '.', '') . 'bbb',
+        			'taxgrp' => intval(get_option('mrkv_kasa_tax_group', 1))
+        		);
+	        }
+
+	        # Check if order has delivery price
+	        if(get_option('mrkv_kasa_shipping_price', 1) && $this->order->get_shipping_total()){
+	        	# Save item
+        		$goods[] = array(
+        			'code' => "delivery",
+        			'name' => __('Доставка', 'mrkv-vchasno-kasa'),
+        			'cnt' => 1,
+        			'price' => 'bbb' . number_format($this->order->get_shipping_total(), 2, '.', '') . 'bbb',
         			'disc' => 'bbb' . number_format(0.00, 2, '.', '') . 'bbb',
         			'taxgrp' => intval(get_option('mrkv_kasa_tax_group', 1))
         		);

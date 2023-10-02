@@ -19,7 +19,12 @@ foreach($all_payment_for_test as $id => $gateway){
 # List of all payment types
 $payment_types = array(__('Готівка', 'mrkv-vchasno-kasa'), 
 					   __('Безготівка', 'mrkv-vchasno-kasa'), 
-					   __('Картка', 'mrkv-vchasno-kasa'));
+					   __('Картка', 'mrkv-vchasno-kasa'),
+					   __('Передплата', 'mrkv-vchasno-kasa'),
+					   __('Післяоплата', 'mrkv-vchasno-kasa'),
+					   __('Кредит', 'mrkv-vchasno-kasa'),
+					   __('Сертифікат', 'mrkv-vchasno-kasa'),
+					   __('Чек', 'mrkv-vchasno-kasa'));
 # List tax groups
 $tax_groupes = array(__('ПДВ 20% (А)', 'mrkv-vchasno-kasa'),
 					 __('Без ПДВ (Б)', 'mrkv-vchasno-kasa'), 
@@ -39,6 +44,12 @@ $test_is_active = (get_option('mrkv_kasa_test_enabled') == '') ? false : get_opt
 
 # Phone enabled
 $mrkv_kasa_phone = (get_option('mrkv_kasa_phone') == '') ? false : get_option('mrkv_kasa_phone');
+
+# Shipping price enabled
+$mrkv_kasa_shipping_price = (get_option('mrkv_kasa_shipping_price') == '') ? false : get_option('mrkv_kasa_shipping_price');
+
+# Zero price product skip enabled
+$mrkv_kasa_skip_zero_product = (get_option('mrkv_kasa_skip_zero_product') == '') ? false : get_option('mrkv_kasa_skip_zero_product');
 
 # Log file open
 $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
@@ -168,6 +179,14 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 					<div class="line-form">
 						<p class="line-form__title"><?php esc_html_e('Надсилати чеки по SMS (платна опція у Вчасно)', 'mrkv-vchasno-kasa'); ?></p>
 						<input class="table_input" type="checkbox" name="mrkv_kasa_phone" <?php echo ($mrkv_kasa_phone) ? esc_html('checked') : ''; ?> />
+					</div>
+					<div class="line-form">
+						<p class="line-form__title"><?php esc_html_e('Включати вартість доставки у чеку', 'mrkv-vchasno-kasa'); ?></p>
+						<input class="table_input" type="checkbox" name="mrkv_kasa_shipping_price" <?php echo ($mrkv_kasa_shipping_price) ? esc_html('checked') : ''; ?> />
+					</div>
+					<div class="line-form">
+						<p class="line-form__title"><?php esc_html_e('Пропускати товари з нульовою ціною', 'mrkv-vchasno-kasa'); ?></p>
+						<input class="table_input" type="checkbox" name="mrkv_kasa_skip_zero_product" <?php echo ($mrkv_kasa_skip_zero_product) ? esc_html('checked') : ''; ?> />
 					</div>
 					<?php echo submit_button(__('Зберегти', 'mrkv-vchasno-kasa')); ?>
 				</div>

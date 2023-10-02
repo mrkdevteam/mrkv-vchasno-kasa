@@ -78,7 +78,7 @@ if (!class_exists('MRKV_SHIFT')){
 			}
 			else{
 				# Show Error
-				$log->save_log(__('Помилка при перевірці стутуса зміни: ', 'mrkv-vchasno-kasa'));
+				$log->save_log(__('Помилка при перевірці статуса зміни: ', 'mrkv-vchasno-kasa'));
 				$log->save_log($result->errortxt);
 			}
 			
