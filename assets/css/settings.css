@@ -35,6 +35,12 @@
 	.mrkv_table-payment__body__line .chosen-choices{background-image:unset; border: 1px solid #D9D9D9;border-radius: 5px;min-height:28px;width:100%;box-shadow: unset !important;padding-top: 5px}
 	.mrkv_table-payment__body__line .chosen-choices li.search-choice{border: 1px solid #969696;border-radius: 5px;display:flex;flex-direction:row-reverse;background-color:#fff;background:#fff;background-image: unset;box-shadow: unset !important; padding-right:5px;padding-left:20px;}
 	.mrkv_table-payment__body__line li.search-choice .search-choice-close{right:unset;left:5px;transform: scale(0.65);}
+	.mrkv_kasa_receipt_send_user-select .chosen-container{width: 300px !important; display: none;}
+	.mrkv_kasa_receipt_send_user-select .chosen-choices{background-image:unset; border: 1px solid #D9D9D9;border-radius: 5px;min-height:28px;width:100%;box-shadow: unset !important;padding-top: 5px}
+	.mrkv_kasa_receipt_send_user-select .chosen-choices li.search-choice{border: 1px solid #969696;border-radius: 5px;display:flex;flex-direction:row-reverse;background-color:#fff;background:#fff;background-image: unset;box-shadow: unset !important; padding-right:5px;padding-left:20px;}
+	.mrkv_kasa_receipt_send_user-select li.search-choice .search-choice-close{right:unset;left:5px;transform: scale(0.65);}
+	.mrkv_kasa_receipt_send_user-select input:checked ~ .chosen-container{ display: inline-block; }
+
 	@media(max-width:1220px){
 		.columns-half__column{width:100%;}
 	}

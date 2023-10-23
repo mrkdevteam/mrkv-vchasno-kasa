@@ -25,6 +25,11 @@ if (!class_exists('MRKV_VCHASNO_KASA_API')){
 		const POST_URL = 'https://kasa.vchasno.ua/api/v3/';
 
 		/**
+		 * @var string Url to vchasno kasa post V2
+		 * */
+		const POST_URL_V = 'https://kasa.vchasno.ua/api/v2/';
+
+		/**
 		 * @var string Version connect api
 		 * */
 		const VERSION_API = '6';
@@ -59,6 +64,39 @@ if (!class_exists('MRKV_VCHASNO_KASA_API')){
 			$header = array( 'Content-type' => 'application/json',
 							'Authorization' => $this->token, 
 			 );
+
+			# Generate setting Post query
+			$response = wp_remote_post(
+                $url,
+                array(
+                    'timeout'     => 60,
+                    'redirection' => 5,
+                    'blocking' => true,	
+                    'headers'     => $header,
+                    'body'        => $params_put,
+                )
+            );
+
+			# Return response
+			return  $response['body'];
+		}
+
+		/**
+		 * Connect with Vchasno Kasa
+		 * @param array Params for query
+		 * @var string Action name
+		 * @return string Query response
+		 * */
+		public function send_receipt($params, $action, $json = ''){
+			# Encode query
+			$params_put = ($json) ? $json : json_encode($params);
+			# Get query url
+			$url = self::POST_URL_V . $action;
+
+			# Set header query values
+			$header = array( 'Content-type' => 'application/json',
+							'Authorization' => $this->token, 
+			);
 
 			# Generate setting Post query
 			$response = wp_remote_post(

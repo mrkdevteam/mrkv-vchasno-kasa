@@ -42,6 +42,11 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 		const ACTION_TYPE = 'fiscal/execute';
 
 		/**
+		 * @var string Url action notification
+		 * */
+		const ACTION_TYPE_CHECK = 'notifications/checks';
+
+		/**
 		 * Constructor for creator receipt
 		 * @param Order data
 		 * */
@@ -337,6 +342,37 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 
 				# Show in history
 				$this->order->add_order_note(__('Чек створено <a href="https://kasa.vchasno.ua/check-viewer/' . $receipt_url . '" target="blanc">Відкрити</a>', 'mrkv-vchasno-kasa'), $is_customer_note = 0, $added_by_user = false);
+
+				# Check if send receipt enabled
+				if(get_option('mrkv_kasa_receipt_send_user')){
+					# Get sender type list
+					$sender_type_list = get_option('mrkv_kasa_receipt_send_user');
+
+					# Check selected sender type
+					if(isset($sender_type_list) && $sender_type_list && is_array($sender_type_list)){
+						# Loop all channel
+						foreach($sender_type_list as $sender_type){
+							# Create sender params
+							$params_sender = array(
+								'recipient' => $email,
+								'channel' => $sender_type,
+								'check' => $receipt_url
+							);
+
+							# Create json
+							$json_sender = json_encode($params_sender);
+
+							# Show Error
+							$log->save_log('<pre>' . print_r($json_sender, 1) . '</pre>');
+
+							# Create receipt (Send post query)
+							$response_sender = $this->api_vchasno_kasa->send_receipt($params_sender, self::ACTION_TYPE_CHECK, $json_sender);
+
+							# Show Error
+							$log->save_log('<pre>' . print_r($response_sender, 1) . '</pre>');
+						}
+					}
+				}
 			}
 			else{
 				# Show Error

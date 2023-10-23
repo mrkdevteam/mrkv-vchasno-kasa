@@ -80,7 +80,9 @@ if (!class_exists('MRKV_SETUP')){
 				'mrkv_kasa_payment_order_statuses',
 				'mrkv_kasa_phone',
 				'mrkv_kasa_shipping_price',
-				'mrkv_kasa_skip_zero_product'
+				'mrkv_kasa_skip_zero_product',
+				'mrkv_kasa_receipt_send_user',
+				'mrkv_kasa_receipt_send_type'
 	        );
 
 	        # Register all options

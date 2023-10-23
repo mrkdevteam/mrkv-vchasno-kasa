@@ -42,8 +42,20 @@ $current_tax_group = get_option('mrkv_kasa_tax_group', '1');
 # Test enabled
 $test_is_active = (get_option('mrkv_kasa_test_enabled') == '') ? false : get_option('mrkv_kasa_test_enabled');
 
+# Send receipt enabled
+$mrkv_kasa_receipt_send_user = (get_option('mrkv_kasa_receipt_send_user') == '') ? false : get_option('mrkv_kasa_receipt_send_user');
+
+# Send receipt enabled type
+$mrkv_kasa_receipt_send_type = get_option('mrkv_kasa_receipt_send_type');
+
 # Phone enabled
 $mrkv_kasa_phone = (get_option('mrkv_kasa_phone') == '') ? false : get_option('mrkv_kasa_phone');
+
+if(isset($mrkv_kasa_receipt_send_user) && $mrkv_kasa_receipt_send_user && isset($mrkv_kasa_receipt_send_type) 
+	&& is_array($mrkv_kasa_receipt_send_type) && (in_array('sms', $mrkv_kasa_receipt_send_type) || in_array('cascade', $mrkv_kasa_receipt_send_type) || in_array('viber', $mrkv_kasa_receipt_send_type))){
+	$mrkv_kasa_phone = 1;
+	update_option('mrkv_kasa_phone', 1);
+}
 
 # Shipping price enabled
 $mrkv_kasa_shipping_price = (get_option('mrkv_kasa_shipping_price') == '') ? false : get_option('mrkv_kasa_shipping_price');
@@ -177,8 +189,25 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 					<h2 class="mt-40"><?php echo __('Додаткові налаштування', 'mrkv-vchasno-kasa'); ?></h2>
 					<hr>
 					<div class="line-form">
-						<p class="line-form__title"><?php esc_html_e('Надсилати чеки по SMS (платна опція у Вчасно)', 'mrkv-vchasno-kasa'); ?></p>
+						<p class="line-form__title"><?php esc_html_e('Надсилати номер телефона покупця при створенні чеку', 'mrkv-vchasno-kasa'); ?></p>
 						<input class="table_input" type="checkbox" name="mrkv_kasa_phone" <?php echo ($mrkv_kasa_phone) ? esc_html('checked') : ''; ?> />
+					</div>
+					<div class="line-form mrkv_kasa_receipt_send_user-select">
+						<p class="line-form__title"><?php esc_html_e('Відправка чеків покупцям', 'mrkv-vchasno-kasa'); ?></p>
+						<input class="table_input" type="checkbox" name="mrkv_kasa_receipt_send_user" <?php echo ($mrkv_kasa_receipt_send_user) ? esc_html('checked') : ''; ?> />
+						<?php 
+							$send_receipt_type_list = array('email', 'sms', 'viber', 'cascade');
+						?>
+						<select class="chosen chosen-select" name="mrkv_kasa_receipt_send_type[]" id="mrkv_kasa_receipt_send_type" data-placeholder="<?php _e('Оберіть тип відправлення', 'checkbox') ?>" multiple>
+							<?php
+								foreach($send_receipt_type_list as $type){
+									?>
+										<option value="<?php echo $type; ?>" <?php echo ( isset($mrkv_kasa_receipt_send_type) && is_array($mrkv_kasa_receipt_send_type) && in_array($type, $mrkv_kasa_receipt_send_type) ) ? esc_html('selected') : ''; ?>><?php echo $type; ?></option>
+									<?php
+								}
+							?>
+						</select>
+						<p><i><?php echo __('cascade – спробувати відправити через Viber. Якщо вайбер не встановлений на телефоні, то відправити через SMS.', 'mrkv-vchasno-kasa') ?></i></p>
 					</div>
 					<div class="line-form">
 						<p class="line-form__title"><?php esc_html_e('Включати вартість доставки у чеку', 'mrkv-vchasno-kasa'); ?></p>
@@ -246,6 +275,13 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 				jQuery(this).closest('.mrkv_table-payment__body__line').find('.mrkv_table-payment__body__type select').css('opacity', '.6');
 				jQuery(this).closest('.mrkv_table-payment__body__line').find('.mrkv_table-payment__body__statuses').css('opacity', '.6');
 			}
+		});
+		jQuery('#mrkv_kasa_receipt_send_type').change(function(){
+			jQuery("#mrkv_kasa_receipt_send_type option:selected").map(function(){ 
+				if(this.value == 'sms' || this.value == 'cascade' || this.value == 'viber'){
+					jQuery('input[name="mrkv_kasa_phone"]').prop('checked', true);
+				}  
+			});
 		});
 	});
 </script>
