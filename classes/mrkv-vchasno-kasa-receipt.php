@@ -219,6 +219,14 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 
 			# Check if phone enabled
 			if(get_option('mrkv_kasa_phone')){
+
+				$pattern = "/^\+380\d{3}\d{2}\d{2}\d{2}$/";
+
+				if(!preg_match($pattern, $phone)){
+					$simple_phone_format = substr($phone, -9);
+					$phone = '+380' . $simple_phone_format;
+				}
+
 				# Set user info in params
 				$params['userinfo'] = array(
 					'email' => $email,
@@ -352,9 +360,16 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 					if(isset($sender_type_list) && $sender_type_list && is_array($sender_type_list)){
 						# Loop all channel
 						foreach($sender_type_list as $sender_type){
+							# Set receipnt
+							$recipient = $phone;
+							# Check sender type 
+							if($sender_type == 'email'){
+								$recipient = $email;
+							}
+
 							# Create sender params
 							$params_sender = array(
-								'recipient' => $email,
+								'recipient' => $recipient,
 								'channel' => $sender_type,
 								'check' => $receipt_url
 							);
