@@ -3,7 +3,7 @@
  * Plugin Name: MORKVA Vchasno Kasa Integration
  * Plugin URI: https://kasa.vchasno.com.ua/
  * Description: Інтеграція WooCommerce з пРРО Вчасно.Каса
- * Version: 0.7.1
+ * Version: 0.8.0
  * Tested up to: 6.3
  * Requires at least: 5.2
  * Requires PHP: 7.1
@@ -29,19 +29,30 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
+add_action( 'before_woocommerce_init', function() {
+    if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+    }
+} );
+
+
+
 # Include all needed classes for activate
 require_once 'classes/mrkv-activate.php'; 
 
 new MRKV_ACTIVATION(__FILE__);
 
-// -----------------------------------------------------------------------//
-// -------------------------------2.SETUP---------------------------------//
-// -----------------------------------------------------------------------//
+# Setup all before woo init
+add_action( 'before_woocommerce_init', function() {
+    // -----------------------------------------------------------------------//
+    // -------------------------------2.SETUP---------------------------------//
+    // -----------------------------------------------------------------------//
 
-# Include all needed classes for setup
-require_once 'classes/mrkv-setup.php'; 
+    # Include all needed classes for setup
+    require_once 'classes/mrkv-setup.php'; 
 
-# Setup Plugin
-new MRKV_SETUP(__FILE__);
+    # Setup Plugin
+    new MRKV_SETUP(__FILE__);
+});
 
 ?>
