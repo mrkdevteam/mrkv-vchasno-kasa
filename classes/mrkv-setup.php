@@ -35,7 +35,7 @@ if (!class_exists('MRKV_SETUP')){
 			add_action('woocommerce_order_action_create_bill_vchasno_kasa_action', array($this, 'mrkv_vchasno_kasa_wc_process_order_meta_box_action'));
 
 			# Check HPOS
-			if(OrderUtil::custom_orders_table_usage_is_enabled()){
+			if(class_exists( \Automattic\WooCommerce\Utilities\OrderUtil::class ) && OrderUtil::custom_orders_table_usage_is_enabled()){
 				# Add order admin column
 				add_filter('manage_woocommerce_page_wc-orders_columns', array($this, 'mrkv_vchasno_kasa_wc_new_order_column'), 20);
 				# Add data to custom order list column
@@ -302,10 +302,15 @@ if (!class_exists('MRKV_SETUP')){
 	     * */
 	    public function mrkv_vchasno_kasa_wc_add_metabox()
 	    {	
-	    	# Get screen data
-	    	$screen = wc_get_container()->get( CustomOrdersTableController::class )->custom_orders_table_usage_is_enabled()
-	        ? wc_get_page_screen_id( 'shop-order' )
-	        : 'shop_order';
+	    	# Check hpos
+	    	if(class_exists( CustomOrdersTableController::class )){
+	            $screen = wc_get_container()->get( CustomOrdersTableController::class )->custom_orders_table_usage_is_enabled()
+	            ? wc_get_page_screen_id( 'shop-order' )
+	            : 'shop_order';
+	        }
+	        else{
+	            $screen = 'shop_order';
+	        }
 
 	    	# Add metabox to admin page
 	        add_meta_box( 'morkva_vchasno_kasa_metabox', __('Вчасно Каса','woocommerce'), array($this, 'mrkv_vchasno_kasa_wc_add_metabox_content'), $screen, 'side', 'core' );
