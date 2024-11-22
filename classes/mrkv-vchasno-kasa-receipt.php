@@ -265,6 +265,8 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
         		);
 	        }
 
+	        $has_shipping_total_exclude = true;
+
 	        # Check if order has delivery price
 	        if(get_option('mrkv_kasa_shipping_price', 1) && $this->order->get_shipping_total()){
 	        	# Save item
@@ -276,6 +278,8 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
         			'disc' => 'bbb' . number_format(0.00, 2, '.', '') . 'bbb',
         			'taxgrp' => intval(get_option('mrkv_kasa_tax_group', 1))
         		);
+
+        		$has_shipping_total_exclude = false;
 	        }
 
 	        # Comment check
@@ -284,6 +288,12 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 	        	$comment = $this->order->customer_message;
 	        }
 
+	        $order_total = $this->order->get_total();
+
+	        if($has_shipping_total_exclude && $this->order->get_shipping_total())
+	        {
+	        	$order_total = $this->order->get_total() - $this->order->get_shipping_total();
+	        }
 	       
 
 	        # Add source
@@ -293,7 +303,7 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 			$params['fiscal'] = array(
 				'task' => 1,
 				'receipt' => array(
-					'sum' => 'bbb' . number_format($this->order->get_total(), 2, '.', '') . 'bbb',
+					'sum' => 'bbb' . number_format($order_total, 2, '.', '') . 'bbb',
 					'round' => 'bbb' . number_format((0.00), 2, '.', '') . 'bbb',
 					'comment_up' => '',
 					'comment_down' => '',
@@ -301,7 +311,7 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 					'pays' => array(
 						array(
 							'type' => intval($this->get_payment_type()),
-							'sum' => 'bbb' . number_format($this->order->get_total(), 2, '.', '') . 'bbb',
+							'sum' => 'bbb' . number_format($order_total, 2, '.', '') . 'bbb',
 							'change' => 'bbb' . number_format((0.00), 2, '.', '') . 'bbb',
 							'comment' => $comment,
 							'currency' => 'ГРН'
