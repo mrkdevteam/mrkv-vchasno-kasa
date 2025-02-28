@@ -17,14 +17,24 @@ foreach($all_payment_for_test as $id => $gateway){
 }
 
 # List of all payment types
-$payment_types = array(__('Готівка', 'mrkv-vchasno-kasa'), 
-					   __('Безготівка', 'mrkv-vchasno-kasa'), 
-					   __('Картка', 'mrkv-vchasno-kasa'),
-					   __('Передплата', 'mrkv-vchasno-kasa'),
-					   __('Післяоплата', 'mrkv-vchasno-kasa'),
-					   __('Кредит', 'mrkv-vchasno-kasa'),
-					   __('Сертифікат', 'mrkv-vchasno-kasa'),
-					   __('Чек', 'mrkv-vchasno-kasa'));
+$payment_types = array(0 => __('Готівка', 'mrkv-vchasno-kasa'), 
+					   1 => __('Безготівка', 'mrkv-vchasno-kasa'), 
+					   2 => __('Картка', 'mrkv-vchasno-kasa'),
+					   3 => __('Передплата', 'mrkv-vchasno-kasa'),
+					   4 => __('Післяоплата', 'mrkv-vchasno-kasa'),
+					   5 => __('Кредит', 'mrkv-vchasno-kasa'),
+					   6 => __('Сертифікат', 'mrkv-vchasno-kasa'),
+					   8 => __('Чек', 'mrkv-vchasno-kasa'),
+					   11 => __('Бонусні бали', 'mrkv-vchasno-kasa'),
+					   12 => __('Погашення кредиту', 'mrkv-vchasno-kasa'),
+					   13 => __('Переказ через QR-код', 'mrkv-vchasno-kasa'),
+					   14 => __('Переказ з картки', 'mrkv-vchasno-kasa'),
+					   15 => __('Переказ з поточного рахунку', 'mrkv-vchasno-kasa'),
+					   16 => __('Інтернет еквайринг', 'mrkv-vchasno-kasa'),
+					   17 => __('Платіж LiqPay', 'mrkv-vchasno-kasa'),
+					   18 => __('Платіж RozetkaPay', 'mrkv-vchasno-kasa'),
+					   19 => __('Платіж Portmone', 'mrkv-vchasno-kasa'),
+					   20 => __('Платіж NovaPay', 'mrkv-vchasno-kasa'));
 # List tax groups
 $tax_groupes = array(__('ПДВ 20% (А)', 'mrkv-vchasno-kasa'),
 					 __('Без ПДВ (Б)', 'mrkv-vchasno-kasa'), 
@@ -36,6 +46,7 @@ $tax_groupes = array(__('ПДВ 20% (А)', 'mrkv-vchasno-kasa'),
 					 __('ПДВ 20% + ПФ 7.5% (ИК)', 'mrkv-vchasno-kasa'), 
 					 __('ПДВ 14% (Л)', 'mrkv-vchasno-kasa'), 
 					 __('ПДФО 18% Військовий збір 1.5% (М)', 'mrkv-vchasno-kasa'));
+
 
 # Current  tax group 
 $current_tax_group = get_option('mrkv_kasa_tax_group', '1');
@@ -110,13 +121,28 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 							
 						</select>
 					</div>
-					<h2 class="mt-40"><?php echo __('Правила автоматичного формування чеків', 'mrkv-vchasno-kasa'); ?></h2>
+				</div>
+				<div class="columns-half__column">
+					<h2><?php echo __('Тестовий режим', 'mrkv-vchasno-kasa'); ?></h2>
+					<hr>
+					<div class="line-form">
+						<p class="line-form__title"><?php esc_html_e('Увімкнути тестовий режим', 'mrkv-vchasno-kasa'); ?></p>
+						<input class="table_input" type="checkbox" name="mrkv_kasa_test_enabled" <?php echo ($test_is_active) ? esc_html('checked') : ''; ?> />
+					</div>
+					<div class="line-form">
+						<p class="line-form__title"><?php esc_html_e('Тестовий токен', 'mrkv-vchasno-kasa'); ?></p>
+						<input class="table_input" type="text" name="mrkv_kasa_test_token" value="<?php echo esc_html(get_option('mrkv_kasa_test_token')); ?>" />
+					</div>
+				</div>
+			</div>
+			<div>
+				<h2 class="mt-40"><?php echo __('Правила автоматичного формування чеків', 'mrkv-vchasno-kasa'); ?></h2>
 					<hr>
 					<p><?php echo __('Налаштуйте для яких саме способів оплати створювати чеки автоматично. Ви завжди зможете створити чек вручну зі сторінки замовлення.', 'mrkv-vchasno-kasa'); ?></p>
 					<div class="mrkv_table-payment">
 						<div class="mrkv_table-payment__header">
 							<p><?php echo __('Спосіб оплати', 'mrkv-vchasno-kasa'); ?></p>
-							<p><?php echo __('Тип оплати', 'mrkv-vchasno-kasa'); ?></p>
+							<p><?php echo __('Форма оплати', 'mrkv-vchasno-kasa'); ?></p>
 							<p><?php echo __('Статуси замовлення', 'mrkv-vchasno-kasa'); ?></p>
 						</div>
 						<hr>
@@ -150,11 +176,9 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 													echo esc_html('opacity: .6;');
 												} ?>">
 												<?php 
-													$index = 0;
-													foreach($payment_types as $type){
+													foreach($payment_types as $index => $type){
 														$selected = ( isset($ppo_payment_type[$id]) && ($index == $ppo_payment_type[$id]) ) ? 'selected' : '';
 														echo '<option ' . esc_html($selected) . ' value="'. esc_html($index) . '">' . esc_html($type) . '</option>';
-														++$index;
 													}
 												?>
 												
@@ -186,6 +210,9 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 							?>
 						</div>
 					</div>
+			</div>
+			<div class="columns-half">
+				<div class="columns-half__column">
 					<h2 class="mt-40"><?php echo __('Додаткові налаштування', 'mrkv-vchasno-kasa'); ?></h2>
 					<hr>
 					<div class="line-form">
@@ -220,16 +247,6 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 					<?php echo submit_button(__('Зберегти', 'mrkv-vchasno-kasa')); ?>
 				</div>
 				<div class="columns-half__column">
-					<h2><?php echo __('Тестовий режим', 'mrkv-vchasno-kasa'); ?></h2>
-					<hr>
-					<div class="line-form">
-						<p class="line-form__title"><?php esc_html_e('Увімкнути тестовий режим', 'mrkv-vchasno-kasa'); ?></p>
-						<input class="table_input" type="checkbox" name="mrkv_kasa_test_enabled" <?php echo ($test_is_active) ? esc_html('checked') : ''; ?> />
-					</div>
-					<div class="line-form">
-						<p class="line-form__title"><?php esc_html_e('Тестовий токен', 'mrkv-vchasno-kasa'); ?></p>
-						<input class="table_input" type="text" name="mrkv_kasa_test_token" value="<?php echo esc_html(get_option('mrkv_kasa_test_token')); ?>" />
-					</div>
 					<div class="line-form">
 						<h2 class="line-form__title mt-40"><?php esc_html_e('Лог', 'mrkv-vchasno-kasa'); ?></h2>
 						<hr>
@@ -240,9 +257,7 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 						<span><?php echo __('*Файл логу автоматично очищується кожні 30 днів', 'mrkv-vchasno-kasa'); ?></span>
 					</div>
 				</div>
-				
 			</div>
-			
 		</form>
 		<div class="plugin-development mt-40">
 			<span><?php echo __('Веб студія', 'mrkv-vchasno-kasa'); ?></span>

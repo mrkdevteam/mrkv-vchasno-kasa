@@ -4,7 +4,7 @@ Tags: WooCommerce, Vchasno Kasa, пРРО, Вчасно, Каса
 Requires at least: 5.2
 Tested up to: 6.7
 Requires PHP: 7.1
-Stable tag: 0.8.4
+Stable tag: 1.0.0
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 WooCommerce tested up to: 9.4.0
@@ -61,6 +61,12 @@ WooCommerce tested up to: 9.4.0
 7. Так виглядає створений чек
 
 == Що нового? ==
+
+= 1.0.0 =
+* [new] додали зміни у формах чеків (01.03.2025)
+
+= 0.8.5 =
+* [new] додали перевірку на доставку
 
 = 0.8.4 =
 * WP 6.7 - сумісний

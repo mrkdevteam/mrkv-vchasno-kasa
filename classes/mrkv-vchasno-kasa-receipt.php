@@ -294,6 +294,11 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 	        {
 	        	$order_total = $this->order->get_total() - $this->order->get_shipping_total();
 	        }
+
+	        if($this->order->get_total() == $this->order->get_subtotal())
+	        {
+	        	$order_total = $this->order->get_total();
+	        }
 	       
 
 	        # Add source
