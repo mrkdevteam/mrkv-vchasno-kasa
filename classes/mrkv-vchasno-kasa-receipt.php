@@ -248,7 +248,8 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
         	# Loop all order items
         	foreach ($goods_items as $item) {
         		# Get product price
-        		$price = ($item->get_total() / $item->get_quantity());
+        		$price = ($item->get_subtotal() / $item->get_quantity());
+        		$discount_total = $item->get_subtotal() - $item->get_total();
 
         		if(($price == 0) && get_option('mrkv_kasa_skip_zero_product', 1)){
         			continue;
@@ -260,7 +261,8 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
         			'name' => $item->get_name(),
         			'cnt' => $item->get_quantity(),
         			'price' => 'bbb' . number_format($price, 2, '.', '') . 'bbb',
-        			'disc' => 'bbb' . number_format(0.00, 2, '.', '') . 'bbb',
+        			'disc' => 'bbb' . number_format($discount_total, 2, '.', '') . 'bbb',
+        			'disc_type' => 0,
         			'taxgrp' => intval(get_option('mrkv_kasa_tax_group', 1))
         		);
 	        }
@@ -289,16 +291,27 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 	        }
 
 	        $order_total = $this->order->get_total();
+	        $discount_order_total = 0.00;
+	        $discount_order_type = 0;
 
 	        if($has_shipping_total_exclude && $this->order->get_shipping_total())
 	        {
 	        	$order_total = $this->order->get_total() - $this->order->get_shipping_total();
 	        }
 
+	        $payment_total = $order_total;
+
 	        if($this->order->get_total() == $this->order->get_subtotal())
 	        {
 	        	$order_total = $this->order->get_total();
 	        }
+	        elseif($this->order->get_total() < $this->order->get_subtotal())
+	        {
+	        	$discount_order_total = $this->order->get_subtotal() - $this->order->get_total();
+	        	$order_total = $this->order->get_subtotal() + $this->order->get_shipping_total();
+	        }
+
+
 	       
 
 	        # Add source
@@ -310,13 +323,15 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 				'receipt' => array(
 					'sum' => 'bbb' . number_format($order_total, 2, '.', '') . 'bbb',
 					'round' => 'bbb' . number_format((0.00), 2, '.', '') . 'bbb',
+					'disc' => 'bbb' . number_format($discount_order_total, 2, '.', '') . 'bbb',
+					'disc_type' => 0,
 					'comment_up' => '',
 					'comment_down' => '',
 					'rows' => $goods,
 					'pays' => array(
 						array(
 							'type' => intval($this->get_payment_type()),
-							'sum' => 'bbb' . number_format($order_total, 2, '.', '') . 'bbb',
+							'sum' => 'bbb' . number_format($payment_total, 2, '.', '') . 'bbb',
 							'change' => 'bbb' . number_format((0.00), 2, '.', '') . 'bbb',
 							'comment' => $comment,
 							'currency' => 'ГРН'
@@ -339,13 +354,13 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 			$json = str_replace('bbb"', '', $json);
 
 			# Show Error
-			$log->save_log('<pre>' . print_r($json, 1) . '</pre>');
+			$log->save_log('<pre>' . $json . '</pre>');
 
 			# Create receipt (Send post query)
 			$response = $this->api_vchasno_kasa->connect($params, self::ACTION_TYPE, $json);
 
 			# Show Error
-			$log->save_log('<pre>' . print_r($response, 1) . '</pre>');
+			$log->save_log('<pre>' . $response . '</pre>');
 
 			# Decode json response to StdClass
 			$result = json_decode($response);
@@ -361,10 +376,24 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 				update_post_meta($this->order->get_id(), 'vchasno_kasa_receipt_url', 'https://kasa.vchasno.ua/check-viewer/' . $receipt_url);
 
 				# Add message in log 
-				$log->save_log(__('Чек створено для замовлення ' . $this->order->get_id(), 'mrkv-vchasno-kasa'));
+				$log->save_log(
+				    sprintf(
+				        /* translators: %d is the order ID */
+				        __('Чек створено для замовлення %d', 'mrkv-vchasno-kasa'),
+				        $this->order->get_id()
+				    )
+				);
 
 				# Show in history
-				$this->order->add_order_note(__('Чек створено <a href="https://kasa.vchasno.ua/check-viewer/' . $receipt_url . '" target="blanc">Відкрити</a>', 'mrkv-vchasno-kasa'), $is_customer_note = 0, $added_by_user = false);
+				$this->order->add_order_note(
+				    sprintf(
+				        /* translators: %s is the URL to view the receipt */
+				        __('Чек створено <a href="%s" target="_blank">Відкрити</a>', 'mrkv-vchasno-kasa'),
+				        esc_url('https://kasa.vchasno.ua/check-viewer/' . $receipt_url)
+				    ),
+				    $is_customer_note = 0,
+				    $added_by_user = false
+				);
 
 				# Check if send receipt enabled
 				if(get_option('mrkv_kasa_receipt_send_user')){
@@ -393,13 +422,13 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 							$json_sender = json_encode($params_sender);
 
 							# Show Error
-							$log->save_log('<pre>' . print_r($json_sender, 1) . '</pre>');
+							$log->save_log('<pre>' . $json_sender . '</pre>');
 
 							# Create receipt (Send post query)
 							$response_sender = $this->api_vchasno_kasa->send_receipt($params_sender, self::ACTION_TYPE_CHECK, $json_sender);
 
 							# Show Error
-							$log->save_log('<pre>' . print_r($response_sender, 1) . '</pre>');
+							$log->save_log('<pre>' . $response_sender . '</pre>');
 						}
 					}
 				}

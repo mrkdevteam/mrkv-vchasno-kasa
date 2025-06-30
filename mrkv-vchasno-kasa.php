@@ -3,16 +3,18 @@
  * Plugin Name: MORKVA Vchasno Kasa Integration
  * Plugin URI: https://kasa.vchasno.com.ua/
  * Description: Інтеграція WooCommerce з пРРО Вчасно.Каса
- * Version: 1.0.0
- * Tested up to: 6.7
+ * Version: 1.0.2
+ * Tested up to: 6.8
  * Requires at least: 5.2
  * Requires PHP: 7.1
  * Author: MORKVA
  * Author URI: https://morkva.co.ua
  * Text Domain: mrkv-vchasno-kasa
- * Domain Path: /languages
  * WC requires at least: 5.4.0
  * WC tested up to: 9.6.0
+ * Domain Path: /i18n/
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
 
 /**
@@ -35,16 +37,23 @@ add_action( 'before_woocommerce_init', function() {
     }
 } );
 
-function mrkv_vchasno_kasa_admin_notice() {
-    // Check if the notice has been dismissed
+function mrkv_vchasno_kasa_admin_notice() 
+{
     if (get_user_meta(get_current_user_id(), 'mrkv_vchasno_kasa_notice_dismissed', true)) {
         return;
     }
 
+    $settings_url = esc_url( admin_url( 'admin.php?page=vchasno_kasa_settings' ) );
+    $message = sprintf(
+       /* translators: %s is the URL to the settings page */
+       __( '<strong>MORKVA Vchasno Kasa Integration</strong> Увага! Перевірте <strong><a href="%s">в налаштуваннях</a></strong> чи для всіх способів оплати вказані label.', 'mrkv-vchasno-kasa' ),
+       $settings_url
+    );
+
     ?>
     <div class="notice notice-error is-dismissible mrkv-vchasnokasa-notice">
         <br>
-        <p><?php _e('<b>MORKVA Vchasno Kasa Integration</b> Увага! Перевірте <b><a href="' . esc_url(admin_url('admin.php?page=vchasno_kasa_settings')) . '">в налаштуваннях</a></b> чи для всіх способів оплати вказані label.', 'mrkv-vchasno-kasa'); ?></p>
+        <p><?php echo wp_kses_post( $message ); ?></p>
         <br>
     </div>
     <script>
@@ -52,7 +61,7 @@ function mrkv_vchasno_kasa_admin_notice() {
             jQuery(document).on('click', '.mrkv-vchasnokasa-notice .notice-dismiss', function() {
                 jQuery.post(ajaxurl, {
                     action: 'mrkv_vchasno_kasa_dismiss_notice',
-                    nonce: '<?php echo wp_create_nonce("mrkv_vchasno_kasa_notice_nonce"); ?>'
+                    nonce: '<?php echo esc_js( wp_create_nonce("mrkv_vchasno_kasa_notice_nonce") ); ?>'
                 });
             });
         });

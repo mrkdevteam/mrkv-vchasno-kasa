@@ -81,29 +81,91 @@ if (!class_exists('MRKV_SETUP')){
 		/**
 		 * Register all settings data
 		 * */
-		public function mrkv_vchasno_kasa_register_mysettings(){
-			# List setting options
-			$options = array(
-				'mrkv_kasa_token',
-				'mrkv_kasa_code_type_payment',
-				'mrkv_kasa_tax_group',
-				'mrkv_kasa_test_token',
-				'mrkv_kasa_test_enabled',
-				'mrkv_kasa_shift_status',
-				'mrkv_kasa_cashier',
-				'mrkv_kasa_receipt_creation',
-				'mrkv_kasa_payment_order_statuses',
-				'mrkv_kasa_phone',
-				'mrkv_kasa_shipping_price',
-				'mrkv_kasa_skip_zero_product',
-				'mrkv_kasa_receipt_send_user',
-				'mrkv_kasa_receipt_send_type'
-	        );
+		public function mrkv_vchasno_kasa_register_mysettings() {
+		    $options = array(
+		        'mrkv_kasa_token'               => 'sanitize_text_field',
+		        'mrkv_kasa_code_type_payment'   => array($this, 'sanitize_array_of_integers'),
+		        'mrkv_kasa_tax_group'            => 'absint',
+		        'mrkv_kasa_test_token'           => 'sanitize_text_field',
+		        'mrkv_kasa_test_enabled'         => array($this, 'sanitize_checkbox'),
+		        'mrkv_kasa_shift_status'         => 'absint',
+		        'mrkv_kasa_cashier'              => 'sanitize_text_field',
+		        'mrkv_kasa_receipt_creation'     => array($this, 'sanitize_array_of_checkboxes'),
+		        'mrkv_kasa_payment_order_statuses' => array($this, 'sanitize_multidimensional_array_of_strings'),
+		        'mrkv_kasa_phone'                => array($this, 'sanitize_checkbox'),
+		        'mrkv_kasa_shipping_price'       => array($this, 'sanitize_checkbox'),
+		        'mrkv_kasa_skip_zero_product'    => array($this, 'sanitize_checkbox'),
+		        'mrkv_kasa_receipt_send_user'    => array($this, 'sanitize_checkbox'),
+		        'mrkv_kasa_receipt_send_type'    => array($this, 'sanitize_array_of_strings'),
+		    );
 
-	        # Register all options
-	        foreach ($options as $option) {
-	            register_setting('mrkv_kasa-settings-group', $option);
+		    foreach ($options as $option_name => $sanitize_callback) {
+		        register_setting(
+		            'mrkv_kasa-settings-group',
+		            $option_name,
+		            array(
+		                'sanitize_callback' => $sanitize_callback,
+		            )
+		        );
+		    }
+		}
+
+		/**
+		 * Sanitizes checkbox fields (returns 'on' or '').
+		 */
+		public function sanitize_checkbox($input) {
+		    return ($input === 'on' || $input === 1 || $input === true) ? 'on' : '';
+		}
+
+		/**
+		 * Sanitizes array of integers (e.g. for select multiple numeric).
+		 */
+		public function sanitize_array_of_integers($input) {
+		    if (!is_array($input)) {
+		        return array();
+		    }
+		    return array_map('absint', $input);
+		}
+
+		/**
+		 * Sanitizes array of strings (for multiple selects or checkboxes).
+		 */
+		public function sanitize_array_of_strings($input) {
+		    if (!is_array($input)) {
+		        return array();
+		    }
+		    return array_map('sanitize_text_field', $input);
+		}
+
+		public function sanitize_multidimensional_array_of_strings($input) {
+	    if (!is_array($input)) {
+	        return array();
+	    }
+	    $output = [];
+
+	    foreach ($input as $key => $value) {
+	        if (is_array($value)) {
+	            $output[$key] = array_map('sanitize_text_field', $value);
+	        } else {
+	            $output[$key] = sanitize_text_field($value);
 	        }
+	    }
+	    return $output;
+	}
+
+
+		/**
+		 * Sanitizes array of checkboxes which come as associative array with 'on' or missing keys.
+		 */
+		public function sanitize_array_of_checkboxes($input) {
+		    if (!is_array($input)) {
+		        return array();
+		    }
+		    $output = [];
+		    foreach ($input as $key => $value) {
+		        $output[$key] = ($value === 'on') ? 'on' : '';
+		    }
+		    return $output;
 		}
 
 		/**
@@ -120,10 +182,22 @@ if (!class_exists('MRKV_SETUP')){
 		/**
 		 * Add Styles to setting page
 		 * */
-		public function setting_admin_enqueue_scripts(){
-			# Include Css
-			wp_enqueue_style( 'chosen-css', plugin_dir_url(__FILE__) . '../assets/css/chosen.min.css' );
-			wp_enqueue_style( 'setting-css', plugin_dir_url(__FILE__) . '../assets/css/settings.css' );
+		public function setting_admin_enqueue_scripts() {
+		    $plugin_dir = plugin_dir_path( __FILE__ );
+
+		    wp_enqueue_style(
+		        'chosen-css',
+		        plugin_dir_url( __FILE__ ) . '../assets/css/chosen.min.css',
+		        array(),
+		        filemtime( $plugin_dir . '../assets/css/chosen.min.css' )
+		    );
+
+		    wp_enqueue_style(
+		        'setting-css',
+		        plugin_dir_url( __FILE__ ) . '../assets/css/settings.css',
+		        array(),
+		        filemtime( $plugin_dir . '../assets/css/settings.css' )
+		    );
 		}
 
 		/**
@@ -131,7 +205,13 @@ if (!class_exists('MRKV_SETUP')){
 		 * */
 		public function mrkv_vchasno_kasa_show_plugin_admin_page(){
 			# Include js file
-			wp_enqueue_script( 'chosen-js', plugin_dir_url(__FILE__) . '../assets/js/chosen.jquery.min.js', array( 'jquery' ), '3.0' );
+			wp_enqueue_script(
+			    'chosen-js',
+			    plugin_dir_url(__FILE__) . '../assets/js/chosen.jquery.min.js',
+			    array('jquery'),
+			    '3.0',
+			    true 
+			);
 			
 			# Show Settings Page template
 			include plugin_dir_path($this->file_path) . "templates/mrkv-setting-page-template.php"; 
@@ -196,7 +276,11 @@ if (!class_exists('MRKV_SETUP')){
 	            # Check if exist
 	            if($receipt_url && $receipt_id){
 	            	# Print link to Vchasno Kasa Receipt 
- 	            	printf('<style>.vchasno-link:hover{opacity:.7;}</style><a class="vchasno-link" style="background: #EAB5F7 !important;background-color: #EAB5F7 !important;border-color: #cec2d1 !important;color: #010101 !important;font-weight: 600;font-size: 15px;padding: 7px 13px;border: 1px solid;border-radius: 5px;" href="%s" target="_blank">%s</a>', "{$receipt_url}", $receipt_id);
+ 	            	printf(
+					    '<style>.vchasno-link:hover{opacity:.7;}</style><a class="vchasno-link" style="background: #EAB5F7 !important;background-color: #EAB5F7 !important;border-color: #cec2d1 !important;color: #010101 !important;font-weight: 600;font-size: 15px;padding: 7px 13px;border: 1px solid;border-radius: 5px;" href="%s" target="_blank">%s</a>',
+					    esc_url( $receipt_url ),
+					    esc_html( $receipt_id )
+					);
 	            }
 	        }
 	    }
@@ -215,7 +299,11 @@ if (!class_exists('MRKV_SETUP')){
 	            # Check if exist
 	            if($receipt_url && $receipt_id){
 	            	# Print link to Vchasno Kasa Receipt 
- 	            	printf('<style>.vchasno-link:hover{opacity:.7;}</style><a class="vchasno-link" style="background: #EAB5F7 !important;background-color: #EAB5F7 !important;border-color: #cec2d1 !important;color: #010101 !important;font-weight: 600;font-size: 15px;padding: 7px 13px;border: 1px solid;border-radius: 5px;" href="%s" target="_blank">%s</a>', "{$receipt_url}", $receipt_id);
+ 	            	printf(
+					    '<style>.vchasno-link:hover{opacity:.7;}</style><a class="vchasno-link" style="background: #EAB5F7 !important;background-color: #EAB5F7 !important;border-color: #cec2d1 !important;color: #010101 !important;font-weight: 600;font-size: 15px;padding: 7px 13px;border: 1px solid;border-radius: 5px;" href="%s" target="_blank">%s</a>',
+					    esc_url($receipt_url),
+					    esc_html($receipt_id)
+					);
 	            }
 	        }
 	    }
@@ -313,29 +401,20 @@ if (!class_exists('MRKV_SETUP')){
 	        }
 
 	    	# Add metabox to admin page
-	        add_meta_box( 'morkva_vchasno_kasa_metabox', __('Вчасно Каса','woocommerce'), array($this, 'mrkv_vchasno_kasa_wc_add_metabox_content'), $screen, 'side', 'core' );
+	        add_meta_box( 'morkva_vchasno_kasa_metabox', __('Вчасно Каса','mrkv-vchasno-kasa'), array($this, 'mrkv_vchasno_kasa_wc_add_metabox_content'), $screen, 'side', 'core' );
 	    }
 
 	    /**
 	     * Add content to metabox
 	     * 
 	     * */
-	    public function mrkv_vchasno_kasa_wc_add_metabox_content()
+	    public function mrkv_vchasno_kasa_wc_add_metabox_content($post)
 	    {
 	    	# Get order data
-	        if (isset($_GET["post"]) || isset($_GET["id"])){
+	        if ($post)
+	        {
 	        	# Create order id variable
-	        	$order_id = '';
-
-	        	# Set order id
-	            if(isset($_GET["post"])){
-	            	# Set
-	                $order_id = $_GET["post"];    
-	            }
-	            else{
-	            	# Set
-	                $order_id = $_GET["id"];
-	            }
+	        	$order_id = $post->ID;
 
 	            # Get receipt url
 		        $receipt_url = get_post_meta($order_id, 'vchasno_kasa_receipt_url', true);
@@ -346,14 +425,18 @@ if (!class_exists('MRKV_SETUP')){
 	            if($receipt_id)
 	            {
 	            	# Show receipt link
-	            	printf('Чек: ' . '<a href="%s" target="_blank">%s</a>', $receipt_url, $receipt_id);
+	            	printf(
+	            	    'Чек: <a href="%s" target="_blank">%s</a>',
+	            	    esc_url($receipt_url),
+	            	    esc_html($receipt_id)
+	            	);
 	            }
 	            else
 	            {
-	        	    $button_text = __( 'Створити чек', 'woocommerce' );
+	        	    $button_text = __( 'Створити чек', 'mrkv-vchasno-kasa' );
 
 	            	echo '<div class="mrkv_vchasno_create_receipt">
-	            		<div class="mrkv_vchasno_create_receipt_btn button button-primary">' . $button_text . '</div>
+	            		<div class="mrkv_vchasno_create_receipt_btn button button-primary">' . esc_html($button_text) . '</div>
 	            		<svg style="display: none;" version="1.1" id="L9" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" x="0px" y="0px"
 						  viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve">
 						    <path fill="#000" d="M73,50c0-12.7-10.3-23-23-23S27,37.3,27,50 M30.9,50c0-10.5,8.5-19.1,19.1-19.1S69.1,39.5,69.1,50">
@@ -368,21 +451,31 @@ if (!class_exists('MRKV_SETUP')){
 						  </path>
 						</svg></div>';
 
-					echo "<script>
-	            		 jQuery('.mrkv_vchasno_create_receipt_btn').click(function(){
-					        jQuery.ajax({
-					            url: '" .  admin_url( "admin-ajax.php" ) . "',
-					            type: 'POST',
-					            data: 'action=submit_morkva_vchasno_kasa&order_id=" . $order_id . "', 
-					            beforeSend: function( xhr ) {
-					                jQuery('.mrkv_vchasno_create_receipt svg').show();
-					            },
-					            success: function( data ) {
-					                location.reload();
-					            }
+					$ajax_url = esc_url( admin_url( 'admin-ajax.php' ) );
+					$order_id_int = intval( $order_id );
+					$nonce = wp_create_nonce( 'mrkv_vchasno_kasa_nonce' );
+
+					echo '<script>
+					    jQuery(document).ready(function($) {
+					        jQuery(".mrkv_vchasno_create_receipt_btn").click(function(){
+					            jQuery.ajax({
+					                url: "{$ajax_url}",
+					                type: "POST",
+					                data: {
+					                    action: "submit_morkva_vchasno_kasa",
+					                    order_id: {$order_id_int},
+					                    nonce: "' . esc_js($nonce) . '"
+					                },
+					                beforeSend: function(xhr) {
+					                    jQuery(".mrkv_vchasno_create_receipt svg").show();
+					                },
+					                success: function(data) {
+					                    location.reload();
+					                }
+					            });
 					        });
 					    });
-	            	</script>";
+					</script>';
 	            }
 	        }
 	    }
@@ -394,10 +487,14 @@ if (!class_exists('MRKV_SETUP')){
 	     * */
 	    public function mrkv_vchasno_kasa_wc_do_metabox_action()
 	    {
+	    	check_ajax_referer('mrkv_vchasno_kasa_nonce', 'nonce');
+
+	    	$order_id = isset($_POST['order_id']) ? intval($_POST['order_id']) : 0;
+
 	    	# Check order id
-	    	if(isset($_POST[ 'order_id' ])){
+	    	if($order_id){
 	    		# Get order data
-	    		$order = wc_get_order( $_POST[ 'order_id' ] );
+	    		$order = wc_get_order( $order_id );
 	    		# Create order vchasno receipt
 		        $this->mrkv_vchasno_kasa_wc_process_order_meta_box_action($order);
 	    	}

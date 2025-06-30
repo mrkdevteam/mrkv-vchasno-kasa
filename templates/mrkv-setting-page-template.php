@@ -79,9 +79,12 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 ?>
 <div class="vchasno-kasa-main">
 	<div class="wrap">
-		<h1><span><?php echo get_admin_page_title(); ?></span><img src="<?php echo plugin_dir_url(__FILE__) . '../assets/imgs/logo-kasa-circle-purple.svg'; ?>" /></h1>
+		<h1>
+		  <span><?php echo esc_html( get_admin_page_title() ); ?></span>
+		  <img src="<?php echo esc_url( plugin_dir_url(__FILE__) . '../assets/imgs/logo-kasa-circle-purple.svg' ); ?>" />
+		</h1>
 		<hr/>
-		<p><?php echo __('Плагін інтеграції WooCommerce з Kasa.vchasno.com.ua, сервісом програмної реєстрації розрахункових операцій (пРРО).', 'mrkv-vchasno-kasa'); ?></p>
+		<p><?php echo esc_html( __('Плагін інтеграції WooCommerce з Kasa.vchasno.com.ua, сервісом програмної реєстрації розрахункових операцій (пРРО).', 'mrkv-vchasno-kasa') ); ?></p>
 		<?php settings_errors(); ?>
 		<?php 
 			if($error_message){
@@ -96,7 +99,7 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 			<?php settings_fields('mrkv_kasa-settings-group'); ?>
 			<div class="columns-half">
 				<div class="columns-half__column">
-					<h2><?php echo __('Загальні налаштування', 'mrkv-vchasno-kasa'); ?></h2>
+					<h2><?php echo esc_html( __('Загальні налаштування', 'mrkv-vchasno-kasa') ); ?></h2>
 					<hr>
 					<div class="line-form">
 						<p class="line-form__title"><?php esc_html_e('Токен каси', 'mrkv-vchasno-kasa'); ?></p>
@@ -123,7 +126,7 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 					</div>
 				</div>
 				<div class="columns-half__column">
-					<h2><?php echo __('Тестовий режим', 'mrkv-vchasno-kasa'); ?></h2>
+					<h2><?php echo esc_html( __('Тестовий режим', 'mrkv-vchasno-kasa') ); ?></h2>
 					<hr>
 					<div class="line-form">
 						<p class="line-form__title"><?php esc_html_e('Увімкнути тестовий режим', 'mrkv-vchasno-kasa'); ?></p>
@@ -136,14 +139,14 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 				</div>
 			</div>
 			<div>
-				<h2 class="mt-40"><?php echo __('Правила автоматичного формування чеків', 'mrkv-vchasno-kasa'); ?></h2>
+				<h2 class="mt-40"><?php echo esc_html( __('Правила автоматичного формування чеків', 'mrkv-vchasno-kasa') ); ?></h2>
 					<hr>
-					<p><?php echo __('Налаштуйте для яких саме способів оплати створювати чеки автоматично. Ви завжди зможете створити чек вручну зі сторінки замовлення.', 'mrkv-vchasno-kasa'); ?></p>
+					<p><?php echo esc_html( __('Налаштуйте для яких саме способів оплати створювати чеки автоматично. Ви завжди зможете створити чек вручну зі сторінки замовлення.', 'mrkv-vchasno-kasa') ); ?></p>
 					<div class="mrkv_table-payment">
 						<div class="mrkv_table-payment__header">
-							<p><?php echo __('Спосіб оплати', 'mrkv-vchasno-kasa'); ?></p>
-							<p><?php echo __('Форма оплати', 'mrkv-vchasno-kasa'); ?></p>
-							<p><?php echo __('Статуси замовлення', 'mrkv-vchasno-kasa'); ?></p>
+						    <p><?php echo esc_html( __('Спосіб оплати', 'mrkv-vchasno-kasa') ); ?></p>
+						    <p><?php echo esc_html( __('Форма оплати', 'mrkv-vchasno-kasa') ); ?></p>
+						    <p><?php echo esc_html( __('Статуси замовлення', 'mrkv-vchasno-kasa') ); ?></p>
 						</div>
 						<hr>
 						<div class="mrkv_table-payment__body">
@@ -188,17 +191,18 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 												if(!isset($ppo_skip_receipt_creation[$id])){
 													echo esc_html('opacity: .6;');
 												} ?>">
-											<select class="chosen chosen-select order-statuses" name="mrkv_kasa_payment_order_statuses[<?php echo esc_html($id); ?>][]" data-placeholder="<?php _e('Оберіть статуси замовлення', 'checkbox') ?>" multiple>
+											<select class="chosen chosen-select order-statuses" name="mrkv_kasa_payment_order_statuses[<?php echo esc_attr( $id ); ?>][]" data-placeholder="<?php esc_attr_e( 'Оберіть статуси замовлення', 'mrkv-vchasno-kasa' ); ?>" multiple>
 	                                            <?php
 	                                            if (! empty($all_order_statuses)) :
 	                                                foreach ($all_order_statuses as $k => $v) :
 	                                                    $k = str_replace('wc-', '', $k);
+	                                                    $is_selected = ( is_array($mrkv_kasa_payment_order_statuses) && isset($mrkv_kasa_payment_order_statuses[$id]) && is_array($mrkv_kasa_payment_order_statuses[$id]) && in_array($k, $mrkv_kasa_payment_order_statuses[$id]) ) ? esc_html('selected') : '';
 	                                                    ?>
-	                                                <option value="<?php echo esc_html($k); ?>" <?php echo ( isset($mrkv_kasa_payment_order_statuses[$id]) && in_array($k, $mrkv_kasa_payment_order_statuses[$id]) ) ? esc_html('selected') : ''; ?>><?php echo esc_html($v); ?></option>
+	                                                <option value="<?php echo esc_html($k); ?>" <?php echo esc_html($is_selected); ?>><?php echo esc_html($v); ?></option>
 	                                                    <?php
 	                                                endforeach;
 	                                            else :
-	                                                printf('<option value="">%s</option>', __('None'));
+	                                                printf('<option value="">%s</option>', esc_html(__('None', 'mrkv-vchasno-kasa')));
 	                                            endif;
 	                                            ?>
 	                                        </select>
@@ -213,7 +217,7 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 			</div>
 			<div class="columns-half">
 				<div class="columns-half__column">
-					<h2 class="mt-40"><?php echo __('Додаткові налаштування', 'mrkv-vchasno-kasa'); ?></h2>
+					<h2 class="mt-40"><?php echo esc_html( __('Додаткові налаштування', 'mrkv-vchasno-kasa') ); ?></h2>
 					<hr>
 					<div class="line-form">
 						<p class="line-form__title"><?php esc_html_e('Надсилати номер телефона покупця при створенні чеку', 'mrkv-vchasno-kasa'); ?></p>
@@ -225,16 +229,19 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 						<?php 
 							$send_receipt_type_list = array('email', 'sms', 'viber', 'cascade');
 						?>
-						<select class="chosen chosen-select" name="mrkv_kasa_receipt_send_type[]" id="mrkv_kasa_receipt_send_type" data-placeholder="<?php _e('Оберіть тип відправлення', 'checkbox') ?>" multiple>
+						<select class="chosen chosen-select" name="mrkv_kasa_receipt_send_type[]" id="mrkv_kasa_receipt_send_type" data-placeholder="<?php esc_attr_e('Оберіть тип відправлення', 'mrkv-vchasno-kasa'); ?>" multiple>
 							<?php
-								foreach($send_receipt_type_list as $type){
-									?>
-										<option value="<?php echo $type; ?>" <?php echo ( isset($mrkv_kasa_receipt_send_type) && is_array($mrkv_kasa_receipt_send_type) && in_array($type, $mrkv_kasa_receipt_send_type) ) ? esc_html('selected') : ''; ?>><?php echo $type; ?></option>
-									<?php
+								foreach ($send_receipt_type_list as $type) {
+								    $selected = ( isset($mrkv_kasa_receipt_send_type) && is_array($mrkv_kasa_receipt_send_type) && in_array($type, $mrkv_kasa_receipt_send_type) ) ? 'selected' : '';
+								    ?>
+								    <option value="<?php echo esc_attr($type); ?>" <?php echo esc_html($selected); ?>>
+								        <?php echo esc_html($type); ?>
+								    </option>
+								    <?php
 								}
 							?>
 						</select>
-						<p><i><?php echo __('cascade – спробувати відправити через Viber. Якщо вайбер не встановлений на телефоні, то відправити через SMS.', 'mrkv-vchasno-kasa') ?></i></p>
+						<p><i><?php echo esc_html( __('cascade – спробувати відправити через Viber. Якщо вайбер не встановлений на телефоні, то відправити через SMS.', 'mrkv-vchasno-kasa') ); ?></i></p>
 					</div>
 					<div class="line-form">
 						<p class="line-form__title"><?php esc_html_e('Включати вартість доставки у чеку', 'mrkv-vchasno-kasa'); ?></p>
@@ -244,24 +251,26 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 						<p class="line-form__title"><?php esc_html_e('Пропускати товари з нульовою ціною', 'mrkv-vchasno-kasa'); ?></p>
 						<input class="table_input" type="checkbox" name="mrkv_kasa_skip_zero_product" <?php echo ($mrkv_kasa_skip_zero_product) ? esc_html('checked') : ''; ?> />
 					</div>
-					<?php echo submit_button(__('Зберегти', 'mrkv-vchasno-kasa')); ?>
+					<?php echo submit_button(esc_html(__('Зберегти', 'mrkv-vchasno-kasa'))); ?>
 				</div>
 				<div class="columns-half__column">
 					<div class="line-form">
 						<h2 class="line-form__title mt-40"><?php esc_html_e('Лог', 'mrkv-vchasno-kasa'); ?></h2>
 						<hr>
-						<pre class="mrkv_full-log"><?php echo print_r($debug_log, 1); ?></pre>
+						<pre class="mrkv_full-log"><?php echo esc_html( $debug_log ); ?></pre>
 					</div>
 					<div class="line-form clear-line">
-						<div class="mrkv_clean-all-log"><?php echo __('Очистити Лог', 'mrkv-vchasno-kasa');?></div>
-						<span><?php echo __('*Файл логу автоматично очищується кожні 30 днів', 'mrkv-vchasno-kasa'); ?></span>
+						<div class="mrkv_clean-all-log"><?php echo esc_html( __('Очистити Лог', 'mrkv-vchasno-kasa') ); ?></div>
+						<span><?php echo esc_html( __('*Файл логу автоматично очищується кожні 30 днів', 'mrkv-vchasno-kasa') ); ?></span>
 					</div>
 				</div>
 			</div>
 		</form>
 		<div class="plugin-development mt-40">
-			<span><?php echo __('Веб студія', 'mrkv-vchasno-kasa'); ?></span>
-			<a href="https://morkva.co.ua/" target="_blank"><img src="<?php echo plugin_dir_url(__FILE__) . '../assets/imgs/morkva-logo.svg'; ?>" alt="Morkva" title="Morkva"></a>
+			<span><?php echo esc_html( __('Веб студія', 'mrkv-vchasno-kasa') ); ?></span>
+			<a href="https://morkva.co.ua/" target="_blank">
+			    <img src="<?php echo esc_url( plugin_dir_url(__FILE__) . '../assets/imgs/morkva-logo.svg' ); ?>" alt="Morkva" title="Morkva" />
+			</a>
 		</div>
 	</div>
 </div>
@@ -270,7 +279,7 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 	jQuery(document).ready( function($){
 		jQuery('.mrkv_clean-all-log').click(function(){
 			jQuery.ajax({
-		    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+		    url: '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>',
 		    type: 'POST',
 		    data:{ 
 		      action: 'clearlog',

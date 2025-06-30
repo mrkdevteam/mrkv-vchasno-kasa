@@ -73,7 +73,13 @@ if (!class_exists('MRKV_SHIFT')){
 
 					# Show result in log file
 					$status_name = ($this->current_status == 0) ? __('Закрита', 'mrkv-vchasno-kasa') : __('Відкрита', 'mrkv-vchasno-kasa');
-					$log->save_log(__('Статус зміни оновлено. Поточний статус зміни: ' . $status_name, 'mrkv-vchasno-kasa'));
+					$log->save_log(
+					    sprintf(
+					        /* translators: %s is the current shift status name */
+					        __('Статус зміни оновлено. Поточний статус зміни: %s', 'mrkv-vchasno-kasa'),
+					        $status_name
+					    )
+					);
 				}
 			}
 			else{
@@ -112,13 +118,27 @@ if (!class_exists('MRKV_SHIFT')){
 				update_option('mrkv_kasa_shift_status', $this->current_status);
 
 				# Show result in log file
-				$log->save_log(__('Статус зміни оновлено. Поточний статус зміни: ' . __('Відкрита', 'mrkv-vchasno-kasa'), 'mrkv-vchasno-kasa'));
+				$status_translated = __('Відкрита', 'mrkv-vchasno-kasa');
+
+				$log->save_log(
+				    sprintf(
+				        /* translators: %s — поточний статус зміни (текст) */
+				        __('Статус зміни оновлено. Поточний статус зміни: %s', 'mrkv-vchasno-kasa'),
+				        $status_translated
+				    )
+				);
 
 				# Get current datetime
 				$date_now = date_i18n("Y-m-d h:i:sa");
 
 				# Show added data
-				$log->save_log(__('==Початок дня ' . $date_now . ' ==', 'mrkv-vchasno-kasa'));
+				$log->save_log(
+				    sprintf(
+				        /* translators: %s — YYYY-MM-DD */
+				        __('== Початок дня %s ==', 'mrkv-vchasno-kasa'),
+				        $date_now
+				    )
+				);
 			}
 			else{
 				# Show Error
@@ -155,13 +175,28 @@ if (!class_exists('MRKV_SHIFT')){
 				update_option('mrkv_kasa_shift_status', $this->current_status);
 
 				# Show result in log file
-				$log->save_log(__('Статус зміни оновлено. Поточний статус зміни: ' . __('Закрита', 'mrkv-vchasno-kasa'), 'mrkv-vchasno-kasa'));
+				$status_name = __('Закрита', 'mrkv-vchasno-kasa');
+
+				$log->save_log(
+				    sprintf(
+				        /* translators: %s — shift name */
+				        __('Статус зміни оновлено. Поточний статус зміни: %s', 'mrkv-vchasno-kasa'),
+				        $status_name
+				    )
+				);
+
 
 				# Get current datetime
 				$date_now = date_i18n("Y-m-d h:i:sa");
 
 				# Show added data
-				$log->save_log(__('==Кінець дня ' . $date_now . ' ==', 'mrkv-vchasno-kasa'));
+				$log->save_log(
+				    sprintf(
+				        /* translators: %s — YYYY-MM-DD */
+				        __('== Кінець дня %s ==', 'mrkv-vchasno-kasa'),
+				        $date_now
+				    )
+				);
 			}
 			else{
 				# Show Error

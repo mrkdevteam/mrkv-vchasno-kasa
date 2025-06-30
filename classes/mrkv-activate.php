@@ -9,7 +9,7 @@ if (!class_exists('MRKV_ACTIVATION')){
 		/**
 		 * @var string Path to plugin
 		 * */
-		private $filename;
+		private $file_name;
 
 		/**
 		 * Constructor for check plugin
@@ -82,7 +82,7 @@ if (!class_exists('MRKV_ACTIVATION')){
 		 * */
 		private function get_error_active_message(){
 			# Mwssage Woo error
-			echo '<div class="error"><p>' . __('Потрібно активувати плагін Woocommerce, щоб встановити плагін Вчасно Каса від "Morkva', 'mrkv-vchasno-kasa' ) . '</p></div>';
+			echo '<div class="error"><p>' . esc_html( __('Потрібно активувати плагін Woocommerce, щоб встановити плагін Вчасно Каса від "Morkva', 'mrkv-vchasno-kasa') ) . '</p></div>';
 		}
 	}
 }

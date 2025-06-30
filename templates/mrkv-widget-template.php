@@ -6,13 +6,14 @@ include plugin_dir_path(__DIR__) . "classes/mrkv-shift.php";
 $shift = new MRKV_SHIFT();
 
 # Check post value
-if(isset($_POST['new_status'])){
-    # Gety post new status
-    $new_status = sanitize_text_field($_POST['new_status']);
+if ( isset($_POST['new_status']) && isset($_POST['mrkv_shift_status_nonce']) 
+     && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mrkv_shift_status_nonce']), 'mrkv_shift_status_action'))) {
 
-    # Change status shift
+    $new_status = sanitize_text_field(wp_unslash($_POST['new_status']));
+
     ($new_status == 0) ? $shift->close_shift() : $shift->open_shift();
 }
+
 
 # Update status shift
 $shift->update_shift_status();
@@ -54,8 +55,9 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
             <?php
         }
         ?>
+        <?php wp_nonce_field( 'mrkv_shift_status_action', 'mrkv_shift_status_nonce' ); ?>
     </form>
     <h3><?php esc_html_e('Лог:', 'mrkv-vchasno-kasa'); ?></h3>
     <hr>
-    <pre><?php echo print_r($debug_log, 1); ?></pre>
+    <pre><?php echo esc_html( $debug_log ); ?></pre>
 </div>

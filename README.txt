@@ -1,10 +1,10 @@
-=== Vchasno Kasa ===
+=== MORKVA Vchasno Kasa Integration ===
 Contributors: bandido, morkva, dpmine
 Tags: WooCommerce, Vchasno Kasa, пРРО, Вчасно, Каса
 Requires at least: 5.2
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.1
-Stable tag: 1.0.0
+Stable tag: 1.0.2
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 WooCommerce tested up to: 9.4.0
@@ -61,6 +61,12 @@ WooCommerce tested up to: 9.4.0
 7. Так виглядає створений чек
 
 == Що нового? ==
+
+= 1.0.2 =
+* [fix] виправили вразливості
+
+= 1.0.1 =
+* [new] додали підтримку знижки на товар та замовлення
 
 = 1.0.0 =
 * [new] додали зміни у формах чеків (01.03.2025)
