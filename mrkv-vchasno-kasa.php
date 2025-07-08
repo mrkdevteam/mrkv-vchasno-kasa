@@ -3,7 +3,7 @@
  * Plugin Name: MORKVA Vchasno Kasa Integration
  * Plugin URI: https://kasa.vchasno.com.ua/
  * Description: Інтеграція WooCommerce з пРРО Вчасно.Каса
- * Version: 1.0.2
+ * Version: 1.0.3
  * Tested up to: 6.8
  * Requires at least: 5.2
  * Requires PHP: 7.1

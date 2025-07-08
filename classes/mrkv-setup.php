@@ -459,11 +459,11 @@ if (!class_exists('MRKV_SETUP')){
 					    jQuery(document).ready(function($) {
 					        jQuery(".mrkv_vchasno_create_receipt_btn").click(function(){
 					            jQuery.ajax({
-					                url: "{$ajax_url}",
+					                url: "' . $ajax_url. '",
 					                type: "POST",
 					                data: {
 					                    action: "submit_morkva_vchasno_kasa",
-					                    order_id: {$order_id_int},
+					                    order_id: "' . $order_id_int . '",
 					                    nonce: "' . esc_js($nonce) . '"
 					                },
 					                beforeSend: function(xhr) {
