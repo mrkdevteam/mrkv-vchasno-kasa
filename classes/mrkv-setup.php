@@ -85,6 +85,7 @@ if (!class_exists('MRKV_SETUP')){
 		    $options = array(
 		        'mrkv_kasa_token'               => 'sanitize_text_field',
 		        'mrkv_kasa_code_type_payment'   => array($this, 'sanitize_array_of_integers'),
+		        'mrkv_kasa_code_type_payment_custom'   => array($this, 'sanitize_array_of_integers'),
 		        'mrkv_kasa_tax_group'            => 'absint',
 		        'mrkv_kasa_test_token'           => 'sanitize_text_field',
 		        'mrkv_kasa_test_enabled'         => array($this, 'sanitize_checkbox'),
@@ -330,15 +331,24 @@ if (!class_exists('MRKV_SETUP')){
 	    /**
 	     * Claer all text in log file 
 	     * */
-	    public function clear_all_log(){
-	    	# Include Create receipt class
-			include plugin_dir_path($this->file_path) . "classes/mrkv-logger-kasa.php";
+	    public function clear_all_log()
+	    {
+	    	if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field( wp_unslash($_POST['nonce'])), 'mrkv_clear_log_nonce')) {
+		        wp_send_json_error(__('Invalid nonce.', 'mrkv-vchasno-kasa'), 403);
+		        wp_die();
+		    }
 
-			# Get logger class
-			$logger = new MRKV_LOGGER_KASA();
+	    	if( current_user_can('editor') || current_user_can('administrator') ) 
+	    	{
+	    		# Include Create receipt class
+				include plugin_dir_path($this->file_path) . "classes/mrkv-logger-kasa.php";
 
-			# Clean log file
-			$logger->clear_file_log();
+				# Get logger class
+				$logger = new MRKV_LOGGER_KASA();
+
+				# Clean log file
+				$logger->clear_file_log();
+	    	}
 
 			# Close Ajax query
 			wp_die();
@@ -487,16 +497,22 @@ if (!class_exists('MRKV_SETUP')){
 	     * */
 	    public function mrkv_vchasno_kasa_wc_do_metabox_action()
 	    {
-	    	check_ajax_referer('mrkv_vchasno_kasa_nonce', 'nonce');
+	    	if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field( wp_unslash($_POST['nonce'])), 'mrkv_vchasno_kasa_nonce')) {
+		        wp_send_json_error(__('Invalid nonce.', 'mrkv-vchasno-kasa'), 403);
+		        wp_die();
+		    }
 
-	    	$order_id = isset($_POST['order_id']) ? intval($_POST['order_id']) : 0;
+		    if( current_user_can('editor') || current_user_can('administrator') ) 
+	    	{
+	    		$order_id = isset($_POST['order_id']) ? intval($_POST['order_id']) : 0;
 
-	    	# Check order id
-	    	if($order_id){
-	    		# Get order data
-	    		$order = wc_get_order( $order_id );
-	    		# Create order vchasno receipt
-		        $this->mrkv_vchasno_kasa_wc_process_order_meta_box_action($order);
+		    	# Check order id
+		    	if($order_id){
+		    		# Get order data
+		    		$order = wc_get_order( $order_id );
+		    		# Create order vchasno receipt
+			        $this->mrkv_vchasno_kasa_wc_process_order_meta_box_action($order);
+		    	}
 	    	}
 	    }
 	}

@@ -134,6 +134,12 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 		private function get_payment_type(){
 			# Get settings payment 
 			$ppo_payment_type = get_option('mrkv_kasa_code_type_payment');
+			$ppo_payment_type_custom = get_option('mrkv_kasa_code_type_payment_custom');
+
+			if(isset($ppo_payment_type[$id]) && $ppo_payment_type[$id] == 'custom' && isset($ppo_payment_type_custom[$id]) && $ppo_payment_type_custom[$id])
+			{
+				return $ppo_payment_type_custom[$id];
+			}
 
 			# Check settings exist
 			if(isset($ppo_payment_type[ $this->order->get_payment_method() ])){
@@ -286,9 +292,6 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 
 	        # Comment check
 	        $comment = "";
-	        if($this->order->customer_message){
-	        	$comment = $this->order->customer_message;
-	        }
 
 	        $order_total = $this->order->get_total();
 	        $discount_order_total = 0.00;

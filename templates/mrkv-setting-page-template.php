@@ -34,7 +34,8 @@ $payment_types = array(0 => __('Готівка', 'mrkv-vchasno-kasa'),
 					   17 => __('Платіж LiqPay', 'mrkv-vchasno-kasa'),
 					   18 => __('Платіж RozetkaPay', 'mrkv-vchasno-kasa'),
 					   19 => __('Платіж Portmone', 'mrkv-vchasno-kasa'),
-					   20 => __('Платіж NovaPay', 'mrkv-vchasno-kasa'));
+					   20 => __('Платіж NovaPay', 'mrkv-vchasno-kasa'),
+					   'custom' => __('Власний метод оплати', 'mrkv-vchasno-kasa'));
 # List tax groups
 $tax_groupes = array(__('ПДВ 20% (А)', 'mrkv-vchasno-kasa'),
 					 __('Без ПДВ (Б)', 'mrkv-vchasno-kasa'), 
@@ -146,6 +147,7 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 						<div class="mrkv_table-payment__header">
 						    <p><?php echo esc_html( __('Спосіб оплати', 'mrkv-vchasno-kasa') ); ?></p>
 						    <p><?php echo esc_html( __('Форма оплати', 'mrkv-vchasno-kasa') ); ?></p>
+						    <p><?php echo esc_html( __('Код оплати', 'mrkv-vchasno-kasa') ); ?></p>
 						    <p><?php echo esc_html( __('Статуси замовлення', 'mrkv-vchasno-kasa') ); ?></p>
 						</div>
 						<hr>
@@ -155,6 +157,7 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 	                                return 'yes' === $gateway->enabled;
 	                            });
 	                            $ppo_payment_type          = get_option('mrkv_kasa_code_type_payment');
+	                            $ppo_payment_type_custom          = get_option('mrkv_kasa_code_type_payment_custom');
                             	$ppo_skip_receipt_creation = get_option('mrkv_kasa_receipt_creation');
                             	$mrkv_kasa_payment_order_statuses = get_option('mrkv_kasa_payment_order_statuses');
                             	$all_order_statuses = wc_get_order_statuses();
@@ -186,6 +189,22 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 												?>
 												
 											</select>
+										</div>
+										<div class="mrkv_table-payment__body__number_pay">
+											<?php 
+												$readonly_pay = '';
+												if(isset($ppo_payment_type[$id]) && $ppo_payment_type[$id] != 'custom')
+												{
+													$ppo_payment_type_custom = $ppo_payment_type[$id];
+													$readonly_pay = 'readonly';
+												}
+												elseif(!isset($ppo_payment_type[$id]))
+												{
+													$ppo_payment_type_custom = 0;
+													$readonly_pay = 'readonly';
+												}
+											?>
+											<input type="number" name="mrkv_kasa_code_type_payment_custom[<?php echo esc_html($id); ?>]" id="mrkv_kasa_code_type_payment_custom[<?php echo esc_html($id); ?>]" value="<?php echo isset($ppo_payment_type_custom) ? $ppo_payment_type_custom : ''; ?>" <?php echo $readonly_pay; ?>>
 										</div>
 										<div class="mrkv_table-payment__body__statuses" style="<?php 
 												if(!isset($ppo_skip_receipt_creation[$id])){
@@ -277,12 +296,26 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 
 <script>
 	jQuery(document).ready( function($){
+		jQuery('.mrkv_table-payment__body__type select').change(function(){
+			let mrkv_kasa_code_type_payment = jQuery(this).val();
+
+			if(mrkv_kasa_code_type_payment != 'custom')
+			{
+				jQuery(this).closest('.mrkv_table-payment__body__line').find('.mrkv_table-payment__body__number_pay input').val(mrkv_kasa_code_type_payment);
+				jQuery(this).closest('.mrkv_table-payment__body__line').find('.mrkv_table-payment__body__number_pay input').prop('readonly', true);
+			}
+			else{
+				jQuery(this).closest('.mrkv_table-payment__body__line').find('.mrkv_table-payment__body__number_pay input').val('');
+				jQuery(this).closest('.mrkv_table-payment__body__line').find('.mrkv_table-payment__body__number_pay input').prop('readonly', false);
+			}
+		});
 		jQuery('.mrkv_clean-all-log').click(function(){
 			jQuery.ajax({
 		    url: '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>',
 		    type: 'POST',
 		    data:{ 
 		      action: 'clearlog',
+		      nonce: '<?php echo wp_create_nonce( 'mrkv_clear_log_nonce' ); ?>'
 		    },
 		    success: function( data ){
 		      jQuery('.mrkv_full-log').text('');
