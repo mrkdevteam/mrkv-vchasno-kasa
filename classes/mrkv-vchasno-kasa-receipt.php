@@ -136,7 +136,9 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 			$ppo_payment_type = get_option('mrkv_kasa_code_type_payment');
 			$ppo_payment_type_custom = get_option('mrkv_kasa_code_type_payment_custom');
 
-			if(isset($ppo_payment_type[$id]) && $ppo_payment_type[$id] == 'custom' && isset($ppo_payment_type_custom[$id]) && $ppo_payment_type_custom[$id])
+			$id = $this->order->get_payment_method(); 
+
+			if(isset($ppo_payment_type[$id]) && $ppo_payment_type[$id] == 1111 && isset($ppo_payment_type_custom[$id]) && $ppo_payment_type_custom[$id])
 			{
 				return $ppo_payment_type_custom[$id];
 			}
