@@ -37,10 +37,25 @@ if (!class_exists('MRKV_ACTIVATION')){
 		    if( !function_exists('is_plugin_active') ){
 		        include_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 		    }
-		    # Check if Woo is active
-		    if ( !in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
-		        set_transient( 'mrkv_deactivate_kasa', true );
-		    }
+
+		    $is_woo_active = in_array(
+				'woocommerce/woocommerce.php',
+				apply_filters( 'active_plugins', get_option( 'active_plugins' ) )
+			);
+
+			if (is_multisite()) 
+			{
+				$network_plugins = get_site_option( 'active_sitewide_plugins' );
+				
+				if (isset( $network_plugins['woocommerce/woocommerce.php'] )) 
+				{
+					$is_woo_active = true;
+				}
+			}
+
+			if (!$is_woo_active) {
+			set_transient( 'mrkv_deactivate_kasa', true );
+			}
 		}	
 
 		/**
