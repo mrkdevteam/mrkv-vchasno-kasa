@@ -251,10 +251,18 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 			# Array of all products
 			$goods = array();
 			# Total price order
-        	$total_price = 0;
+        	# Total price order
+        	$products_subtotal = 0;
+			$products_total = 0;
+			$total_price = 0;
 
         	# Loop all order items
-        	foreach ($goods_items as $item) {
+        	foreach ($goods_items as $item) 
+        	{
+        		# Sum subtotals and totals for all items
+			    $products_subtotal += $item->get_subtotal();
+			    $products_total += $item->get_total();
+
         		# Get product price
         		$price = ($item->get_subtotal() / $item->get_quantity());
         		$discount_total = $item->get_subtotal() - $item->get_total();
@@ -273,6 +281,8 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
         			'disc_type' => 0,
         			'taxgrp' => intval(get_option('mrkv_kasa_tax_group', 1))
         		);
+
+        		$total_price += $item->get_total();
 	        }
 
 	        $has_shipping_total_exclude = true;
@@ -289,6 +299,8 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
         			'taxgrp' => intval(get_option('mrkv_kasa_tax_group', 1))
         		);
 
+        		$total_price += $this->order->get_shipping_total();
+
         		$has_shipping_total_exclude = false;
 	        }
 
@@ -297,7 +309,6 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 
 	        $order_total = $this->order->get_total();
 	        $discount_order_total = 0.00;
-	        $discount_order_type = 0;
 
 	        if($has_shipping_total_exclude && $this->order->get_shipping_total())
 	        {
@@ -306,18 +317,10 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 
 	        $payment_total = $order_total;
 
-	        if($this->order->get_total() == $this->order->get_subtotal())
+	        if($total_price != $order_total && $total_price > $order_total)
 	        {
-	        	$order_total = $this->order->get_total();
+	        	$discount_order_total = $total_price - $order_total;
 	        }
-	        elseif($this->order->get_total() < $this->order->get_subtotal())
-	        {
-	        	$discount_order_total = $this->order->get_subtotal() - $this->order->get_total();
-	        	$order_total = $this->order->get_subtotal() + $this->order->get_shipping_total();
-	        }
-
-
-	       
 
 	        # Add source
 	        $params['source'] = 'VCD-1880';
