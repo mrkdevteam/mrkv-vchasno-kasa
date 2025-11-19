@@ -230,6 +230,86 @@ $debug_log = file_get_contents(__DIR__ . '/../logs/debug.log');
 									<hr>
 									<?php
 								}
+
+								$m_ua_active_plugins = get_option('m_ua_active_plugins');
+								$active_shippings = false;
+
+								if($m_ua_active_plugins && is_array($m_ua_active_plugins) && !empty($m_ua_active_plugins) && defined( 'MRKV_UA_SHIPPING_LIST' ))
+								{
+									foreach(MRKV_UA_SHIPPING_LIST as $slug => $shipping)
+					                {
+					                    if($m_ua_active_plugins && isset($m_ua_active_plugins[$slug]['enabled']) && $m_ua_active_plugins[$slug]['enabled'] == 'on')
+					                    {
+					                    	$id = $slug . '_code';
+					                    	?>
+												<div class="mrkv_table-payment__body__line">
+													<div class="mrkv_table-payment__body__checkbox">
+														<input name="mrkv_kasa_receipt_creation[<?php echo esc_html($id); ?>]" id="mrkv_kasa_receipt_creation_<?php echo esc_html($id); ?>" type="checkbox" <?php 
+															if(isset($ppo_skip_receipt_creation[$id]) && $ppo_skip_receipt_creation[$id] == 'on'){
+																echo esc_html('checked');
+															} ?>>
+														<label for="mrkv_kasa_receipt_creation_<?php echo esc_html($id); ?>">
+															<div class="mrkv_table-payment__body__checkbox__input">
+																<span class="mrkv_kasa_slider"></span>
+															</div>
+															<?php echo esc_html($shipping['name']) . ' ' . esc_html( __('(післяплата)', 'mrkv-vchasno-kasa') ); ?></label>
+													</div>
+													<div class="mrkv_table-payment__body__type">
+														<select name="mrkv_kasa_code_type_payment[<?php echo esc_html($id); ?>]" id="mrkv_kasa_code_type_payment_<?php echo esc_html($id); ?>" style="<?php 
+															if(!isset($ppo_skip_receipt_creation[$id])){
+																echo esc_html('opacity: .6;');
+															} ?>">
+															<?php 
+																foreach($payment_types as $index => $type){
+																	$selected = ( isset($ppo_payment_type[$id]) && ($index == $ppo_payment_type[$id]) ) ? 'selected' : '';
+																	echo '<option ' . esc_html($selected) . ' value="'. esc_html($index) . '">' . esc_html($type) . '</option>';
+																}
+															?>
+															
+														</select>
+													</div>
+													<div class="mrkv_table-payment__body__number_pay">
+														<?php 
+															$readonly_pay = '';
+															if(isset($ppo_payment_type[$id]) && $ppo_payment_type[$id] != 1111)
+															{
+																$ppo_payment_type_custom[$id] = $ppo_payment_type[$id];
+																$readonly_pay = 'readonly';
+															}
+															elseif(!isset($ppo_payment_type[$id]))
+															{
+																$ppo_payment_type_custom[$id] = 0;
+																$readonly_pay = 'readonly';
+															}
+														?>
+														<input type="number" name="mrkv_kasa_code_type_payment_custom[<?php echo esc_html($id); ?>]" id="mrkv_kasa_code_type_payment_custom[<?php echo esc_html($id); ?>]" value="<?php echo isset($ppo_payment_type_custom[$id]) ? $ppo_payment_type_custom[$id] : ''; ?>" <?php echo $readonly_pay; ?>>
+													</div>
+													<div class="mrkv_table-payment__body__statuses" style="<?php 
+															if(!isset($ppo_skip_receipt_creation[$id])){
+																echo esc_html('opacity: .6;');
+															} ?>">
+														<select class="chosen chosen-select order-statuses" name="mrkv_kasa_payment_order_statuses[<?php echo esc_attr( $id ); ?>][]" data-placeholder="<?php esc_attr_e( 'Оберіть статуси замовлення', 'mrkv-vchasno-kasa' ); ?>" multiple>
+				                                            <?php
+				                                            if (! empty($all_order_statuses)) :
+				                                                foreach ($all_order_statuses as $k => $v) :
+				                                                    $k = str_replace('wc-', '', $k);
+				                                                    $is_selected = ( is_array($mrkv_kasa_payment_order_statuses) && isset($mrkv_kasa_payment_order_statuses[$id]) && is_array($mrkv_kasa_payment_order_statuses[$id]) && in_array($k, $mrkv_kasa_payment_order_statuses[$id]) ) ? esc_html('selected') : '';
+				                                                    ?>
+				                                                <option value="<?php echo esc_html($k); ?>" <?php echo esc_html($is_selected); ?>><?php echo esc_html($v); ?></option>
+				                                                    <?php
+				                                                endforeach;
+				                                            else :
+				                                                printf('<option value="">%s</option>', esc_html(__('None', 'mrkv-vchasno-kasa')));
+				                                            endif;
+				                                            ?>
+				                                        </select>
+													</div>
+												</div>
+												<hr>
+												<?php
+					                    }
+					                }
+								}
 							?>
 						</div>
 					</div>

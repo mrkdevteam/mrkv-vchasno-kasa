@@ -67,6 +67,10 @@ if (!class_exists('MRKV_SETUP')){
 			# Add metabox to order edit
 			add_action( 'add_meta_boxes', array($this, 'mrkv_vchasno_kasa_wc_add_metabox'));
 
+			# Individual tax code 
+			add_action('woocommerce_product_options_general_product_data', [$this, 'mrkv_vchasno_add_individual_taxcode_field']);
+			add_action('woocommerce_admin_process_product_object', [$this, 'mrkv_vchasno_save_individual_taxcode_field']);
+
 			# Add save metabox to order edit
 			add_action( 'wp_ajax_submit_morkva_vchasno_kasa', array($this, 'mrkv_vchasno_kasa_wc_do_metabox_action') );
 			add_action( 'wp_ajax_nopriv_submit_morkva_vchasno_kasa', array($this, 'mrkv_vchasno_kasa_wc_do_metabox_action') );
@@ -76,6 +80,36 @@ if (!class_exists('MRKV_SETUP')){
 				# Add event
 				wp_schedule_event( time(), 'monthly', 'clear_all_log_plugin_event_hook');
 			}
+		}
+
+		public function mrkv_vchasno_add_individual_taxcode_field() {
+
+		    global $product_object;
+
+		    if ( $product_object && ! $product_object->is_type('variation') ) {
+
+		        echo '<div class="options_group">';
+
+		        woocommerce_wp_text_input( array(
+		            'id'          => 'mrkv_vchasno_ind_taxcode',
+		            'label'       => __('Індивідуальний код податку', 'mrkv-vchasno-kasa'),
+		            'type'        => 'number',
+		            'desc_tip'    => true,
+		            'description' => __('Внесіть індивідуальний код податку', 'mrkv-vchasno-kasa'),
+		        ) );
+
+		        echo '</div>';
+		    }
+		}
+
+		public function mrkv_vchasno_save_individual_taxcode_field( $product ) {
+
+		    if ( isset($_POST['mrkv_vchasno_ind_taxcode']) ) {
+		        $product->update_meta_data(
+		            'mrkv_vchasno_ind_taxcode',
+		            sanitize_text_field($_POST['mrkv_vchasno_ind_taxcode'])
+		        );
+		    }
 		}
 
 		/**

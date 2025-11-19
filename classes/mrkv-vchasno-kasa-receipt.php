@@ -37,6 +37,11 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 		private $type_creation;
 
 		/**
+		 * @var string Ua Shipping Support
+		 * */
+		private $mrkv_ua_shipping_key;
+
+		/**
 		 * @var string Url action
 		 * */
 		const ACTION_TYPE = 'fiscal/execute';
@@ -65,6 +70,7 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 
 			# Save order data
 			$this->order = $order;
+			$this->mrkv_ua_shipping_key = $this->get_mrkv_ua_shipping_key();
 
 			# Save type creation
 			$this->type_creation = $type_creation;
@@ -80,6 +86,44 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 		private function check_shift_status(){
 			# Return status 
 			return ($this->shift_status == '0') ? 0 : 1;
+		}
+
+		/**
+		 * Get Ua shipping key
+		 * @return boolean Shift status
+		 * */
+		private function get_mrkv_ua_shipping_key()
+		{
+			$m_ua_active_plugins = get_option('m_ua_active_plugins');
+
+			if($this->order->get_payment_method() =='cod' && $m_ua_active_plugins && is_array($m_ua_active_plugins) && !empty($m_ua_active_plugins) && defined( 'MRKV_UA_SHIPPING_LIST' ))
+			{
+				$keys_shipping = array_keys(MRKV_UA_SHIPPING_LIST);
+	    		$key = '';
+
+	    		foreach($this->order->get_shipping_methods() as $shipping)
+	            {
+	            	foreach($keys_shipping as $key_ship)
+					{
+						if(str_contains($shipping->get_method_id(), $key_ship))
+						{
+							$key = $key_ship;
+						}
+						if(in_array($shipping->get_method_id(), MRKV_UA_SHIPPING_LIST[$key_ship]['old_slugs']))
+						{
+							$key = $key_ship;
+						}
+					}
+	            }
+	        }
+
+	        if($key)
+	        {
+	        	return $key . '_code';
+	        }
+
+			# Return status 
+			return '';
 		}
 
 		/**
@@ -115,14 +159,19 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 
 			# Get current order status
 			$current_status = $this->order->get_status();
-
-			# Check if order fits the rules
+			
+			if($this->mrkv_ua_shipping_key && isset($ppo_skip_receipt_creation[$this->mrkv_ua_shipping_key]) && is_array($mrkv_kasa_payment_order_statuses) && isset($mrkv_kasa_payment_order_statuses[$this->mrkv_ua_shipping_key]) && in_array($current_status, $mrkv_kasa_payment_order_statuses[$this->mrkv_ua_shipping_key]))
+			{
+				return false;
+			}
+			
 			if(isset($ppo_skip_receipt_creation[ $this->order->get_payment_method() ]) && is_array($mrkv_kasa_payment_order_statuses) 
 				&& isset($mrkv_kasa_payment_order_statuses[$this->order->get_payment_method()]) 
 				&& in_array($current_status, $mrkv_kasa_payment_order_statuses[ $this->order->get_payment_method()])){
 				# Continue create
 				 return false;
 			}
+
 			# Stop create
 			return true;
 		}
@@ -138,9 +187,20 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 
 			$id = $this->order->get_payment_method(); 
 
+			if($this->mrkv_ua_shipping_key)
+			{
+				$id = $this->mrkv_ua_shipping_key;
+			}
+
 			if(isset($ppo_payment_type[$id]) && $ppo_payment_type[$id] == 1111 && isset($ppo_payment_type_custom[$id]) && $ppo_payment_type_custom[$id])
 			{
 				return $ppo_payment_type_custom[$id];
+			}
+
+			# Check settings exist
+			if($this->mrkv_ua_shipping_key && isset($ppo_payment_type[ $this->mrkv_ua_shipping_key ])){
+				# Return type of settings
+				return $ppo_payment_type[ $this->mrkv_ua_shipping_key ];
 			}
 
 			# Check settings exist
@@ -271,6 +331,17 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
         			continue;
         		}
 
+        		$tax_group = intval(get_option('mrkv_kasa_tax_group', 1));
+
+        		$product_obj = $item->get_product();
+	            $mrkv_vchasno_ind_taxcode = $product_obj->get_meta('mrkv_vchasno_ind_taxcode');
+
+	            # Check tax
+	            if($mrkv_vchasno_ind_taxcode)
+	            {
+	            	$tax_group = intval($mrkv_vchasno_ind_taxcode);
+	            }
+
         		# Save item
         		$goods[] = array(
         			'code' => "" . $item->get_id(),
@@ -279,7 +350,7 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
         			'price' => 'bbb' . number_format($price, 2, '.', '') . 'bbb',
         			'disc' => 'bbb' . number_format($discount_total, 2, '.', '') . 'bbb',
         			'disc_type' => 0,
-        			'taxgrp' => intval(get_option('mrkv_kasa_tax_group', 1))
+        			'taxgrp' => $tax_group
         		);
 
         		$total_price += $item->get_total();
