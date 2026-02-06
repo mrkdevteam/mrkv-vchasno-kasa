@@ -7,7 +7,7 @@ $shift = new MRKV_SHIFT();
 
 # Check post value
 if ( isset($_POST['new_status']) && isset($_POST['mrkv_shift_status_nonce']) 
-     && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mrkv_shift_status_nonce']), 'mrkv_shift_status_action'))) {
+     && wp_verify_nonce( sanitize_text_field( wp_unslash($_POST['mrkv_shift_status_nonce']) ), 'mrkv_shift_status_action' )) {
 
     $new_status = sanitize_text_field(wp_unslash($_POST['new_status']));
 
