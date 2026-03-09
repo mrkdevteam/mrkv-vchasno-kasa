@@ -225,10 +225,10 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 				# Check order by rules
 				if($this->check_payment_types()){
 					# Show Error
-					$log->save_log(__('Помилка при створені чека: Чек не пройшов по правилам формування чеків', 'mrkv-vchasno-kasa'));
+					/*$log->save_log(__('Помилка при створені чека: Чек не пройшов по правилам формування чеків', 'mrkv-vchasno-kasa'));
 
 					# Show error in order
-					$this->order->add_order_note(__('Помилка при створені чека: Чек не пройшов по правилам формування чеків', 'mrkv-vchasno-kasa'), $is_customer_note = 0, $added_by_user = false);
+					$this->order->add_order_note(__('Помилка при створені чека: Чек не пройшов по правилам формування чеків', 'mrkv-vchasno-kasa'), $is_customer_note = 0, $added_by_user = false);*/
 
 					# Stop create
 					return;
@@ -334,12 +334,11 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
         		$tax_group = intval(get_option('mrkv_kasa_tax_group', 1));
 
         		$product_obj = $item->get_product();
-	            $mrkv_vchasno_ind_taxcode = $product_obj->get_meta('mrkv_vchasno_ind_taxcode');
 
 	            # Check tax
-	            if($mrkv_vchasno_ind_taxcode)
+	            if($product_obj && is_a($product_obj, 'WC_Product') && $product_obj->get_meta('mrkv_vchasno_ind_taxcode'))
 	            {
-	            	$tax_group = intval($mrkv_vchasno_ind_taxcode);
+	            	$tax_group = intval($product_obj->get_meta('mrkv_vchasno_ind_taxcode'));
 	            }
 
         		# Save item
