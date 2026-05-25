@@ -140,7 +140,7 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 		 * */
 		private function check_receipt_exist(){
 			# Check field exist
-			if (! empty(get_post_meta($this->order->get_id(), 'vchasno_kasa_receipt_id', true))) {
+			if (! empty(get_post_meta($this->order->get_meta('vchasno_kasa_receipt_id')))) {
 				# Return postive answer
 				return true;
 			}
@@ -447,11 +447,12 @@ if (!class_exists('MRKV_VCHASNO_KASA_RECEIPT')){
 			if($result->errortxt == ''){
 				# Save qr link
 				$receipt_url = $result->info->doccode;
-				# Save id in order
-				update_post_meta($this->order->get_id(), 'vchasno_kasa_receipt_id', $receipt_url);
+				$receipt_id = !empty($receipt_url_id) ? $receipt_url_id : $receipt_url;
+				$receipt_full_url = !empty($full_url) ? $full_url : 'https://kasa.vchasno.ua/check-viewer/' . $receipt_url;
 
-				# Save id in order
-				update_post_meta($this->order->get_id(), 'vchasno_kasa_receipt_url', 'https://kasa.vchasno.ua/check-viewer/' . $receipt_url);
+				$this->order->update_meta_data('vchasno_kasa_receipt_id', $receipt_id);
+				$this->order->update_meta_data('vchasno_kasa_receipt_url', $receipt_full_url);
+				$this->order->save();
 
 				# Add message in log 
 				$log->save_log(
